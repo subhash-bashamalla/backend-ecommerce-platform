@@ -4,20 +4,18 @@ from app.db.session import engine
 from app.db.models import Base
 
 app = FastAPI(
-    title="E-Commerce Backend Service",
+    title="E-Commerce Backend",
     version="1.0.0",
-    description="Stateless backend service designed for containerized AWS deployment."
+    description="Stateless container-ready backend with PostgreSQL and Redis."
 )
 
-# Create tables (for demo purposes — in production use migrations)
 Base.metadata.create_all(bind=engine)
 
-# Include routers
 app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 app.include_router(products.router, prefix="/products", tags=["Products"])
 app.include_router(orders.router, prefix="/orders", tags=["Orders"])
 
 
 @app.get("/health")
-def health_check():
+def health():
     return {"status": "healthy"}
