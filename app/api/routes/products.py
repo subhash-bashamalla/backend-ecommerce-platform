@@ -20,4 +20,3 @@ def create_product(
 @router.get("/")
 def list_products(db: Session = Depends(get_db)):
     return ProductService.get_products(db)
-
