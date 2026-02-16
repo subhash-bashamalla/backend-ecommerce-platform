@@ -1,12 +1,15 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 
 class ProductCreate(BaseModel):
-    email: EmailStr
-    password: str
+    name: str
+    description: str
+    price: float
 
 class ProductResponse(BaseModel):
     id: int
-    email: EmailStr
+    name: str
+    description: str
+    price: float
 
     class Config:
         from_attributes = True
