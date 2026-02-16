@@ -1,31 +1,40 @@
-from sqlalchemy.orm import Session
-from app.models.product import Product
-from app.core.redis_client import redis_client
 import json
+from sqlalchemy.orm import Session
+from app.db.models import Product
+from app.cache.redis_client import redis_client
 
 
-def create_product(db: Session, name: str, description: str, price: float):
-    product = Product(name=name, description=description, price=price)
-    db.add(product)
-    db.commit()
-    db.refresh(product)
-    return product
+class ProductService:
 
+    CACHE_KEY = "products:all"
 
-def get_products(db: Session):
-    if redis_client:
-        cached = redis_client.get("products")
+    @staticmethod
+    def create_product(db: Session, name: str, price: float):
+        product = Product(name=name, price=price)
+
+        db.add(product)
+        db.commit()
+        db.refresh(product)
+
+        # Invalidate cache
+        redis_client.delete(ProductService.CACHE_KEY)
+
+        return product
+
+    @staticmethod
+    def get_products(db: Session):
+        cached = redis_client.get(ProductService.CACHE_KEY)
+
         if cached:
             return json.loads(cached)
 
-    products = db.query(Product).all()
+        products = db.query(Product).all()
 
-    serialized = [
-        {"id": p.id, "name": p.name, "description": p.description, "price": p.price}
-        for p in products
-    ]
+        result = [
+            {"id": p.id, "name": p.name, "price": p.price}
+            for p in products
+        ]
 
-    if redis_client:
-        redis_client.setex("products", 60, json.dumps(serialized))
+        redis_client.set(ProductService.CACHE_KEY, json.dumps(result), ex=60)
 
-    return serialized
+        return result
