@@ -23,4 +23,3 @@ def list_my_orders(
     user=Depends(get_current_user),
 ):
     return OrderService.get_orders_for_user(db, user.id)
-
