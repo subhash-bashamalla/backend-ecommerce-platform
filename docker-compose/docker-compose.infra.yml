@@ -1,0 +1,45 @@
+networks:
+  ecomm-app-network:
+    driver: bridge
+    external: true
+
+services:
+  jenkins-master:
+    build: ./jenkins-master
+    container_name: jenkins-master
+    ports:
+      - "8080:8080"
+    networks:
+      - ecomm-app-network
+    restart: always
+    volumes:
+      - jenkins_main:/var/jenkins_main
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/login"]
+      interval: 25s
+      timeout: 15s
+      retries: 15
+      start_period: 90s
+
+  
+  jenkins-agent:
+    build: ./jenkins-agent
+    container_name: jenkins-agent
+    networks:
+      - ecomm-app-network
+    depends_on:
+      - jenkins-master
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - jenkins_main:/home/jenkins_main
+    environment:
+      JENKINS_NAME: ${JENKINS_NAME}
+      JENKINS_MASTER_URL: ${JENKINS_MASTER_URL}
+      JENKINS_SECRET: ${JENKINS_SECRET}
+
+
+volumes:
+  jenkins_main:
+
+
+

@@ -1,0 +1,18 @@
+# Terraform (anywhere)
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.*
+**/crash.log
+
+# Variables (sensitive)
+**/*.tfvars
+**/*.tfvars.json
+
+# Optional (your choice)
+# Keep lock file → COMMENT this line
+# Ignore lock file → UNCOMMENT
+# **/.terraform.lock.hcl
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,19 @@
+networks:
+  ecomm-app-network:
+    driver: bridge
+    external: true
+
+services:
+  app-stage:
+    image: ${IMAGE}
+    container_name: app-stage
+    environment:
+      ENV: staging
+      VERSION: ${IMG_TAG}
+    env_file:
+      - ./.env.stage
+    networks:
+      - ecomm-app-network
+    ports:
+      - "5002:5000"
+
