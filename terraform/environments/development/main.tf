@@ -64,8 +64,9 @@ module "iam" {
 
 module "db" {
     source = "../../modules/database"
-    env_name = "development
-    "
+    env_name = "development"
+    private_subnets = module.vpc.private_subnets
+    db_sg_id = module.sg.sg_db_id
 }
 
 module "cloudwatch" {

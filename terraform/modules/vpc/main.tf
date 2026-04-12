@@ -29,3 +29,9 @@ resource "aws_subnet" "public_subnet_2" {
         Name = "public-subnet-2"
     }
 }
+
+
+resource "aws_db_subnet_group" "db_subnet_grp" {
+    name = "${var.env_name}-db-subnet-group"
+    subnet_ids = var.private_subnets
+}
