@@ -21,6 +21,15 @@ resource "aws_ecs_task_definition" "ecomm_app_task_def" {
                     hostPort = 5000
                 }
             ]
+
+            logConfiguration = {
+                logDriver = "awslogs"
+                options = {
+                    awslogs-group = var.log_group_name
+                    awslogs-region = var.region_aws
+                    awslogs-stream-prefix = "ecs"
+                }
+            }
         }
     ])
 }

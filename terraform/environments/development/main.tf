@@ -33,6 +33,9 @@ module "ecs" {
     task_role_arn = module.iam.ecs_task_role_arn
     task_role_name = module.iam.ecs_task_role_name
     execution_role_arn = module.iam.ecs_execution_role_arn
+    log_group_name = module.cloudwatch.log_group_name
+    region_aws = var.region_aws
+    bucket_name = module.s3.
     
 }
 
@@ -63,6 +66,20 @@ module "db" {
     source = "../../modules/database"
     env_name = "development
     "
+}
+
+module "cloudwatch" {
+    source = "../../modules/cloudwatch"
+    env_name = "development"
+    service_name = "ecpmm-back-app"
+    cluster_name = "dev-cluster"
+    alb_arn_suffix = module.lb.arn_suffix
+    region_aws = var.region_aws
+    db_instance_id = null
+    redis_cluster_id = null
+
+    log_retention_days = 14
+    cpu_threshold = 80
 }
 
 module "vpc_endpoints" {

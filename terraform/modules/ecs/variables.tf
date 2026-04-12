@@ -38,3 +38,11 @@ variable "task_role_arn" {
 variable "bucket_name" {
     type = string
 }
+
+variable "log_group_name" {
+    type = string
+}
+
+variable "region_aws" {
+    type = string
+}

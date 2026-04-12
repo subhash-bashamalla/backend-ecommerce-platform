@@ -5,3 +5,7 @@ output "alb_dns" {
 output "tg_arn" {
     value = aws_lb_target_group.ecomm-back-app.arn
 }
+
+output "arn-suffix" {
+    value = aws_lb.ecomm-back-app.arn_suffix
+}
