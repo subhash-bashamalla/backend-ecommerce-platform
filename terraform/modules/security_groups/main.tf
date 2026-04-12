@@ -58,3 +58,25 @@ resource "aws_security_group" "sg_db" {
 }
 
 
+resource "aws_security_group_rule" "ecs_to_db" {
+    type = "ingress"
+    from_port = 5432
+    to_port = 5432
+    protocol = "tcp"
+
+    security_group_id = aws_security_group.sg_db.id
+    source_security_group_id = aws_security_group.sg_ecs.id
+}
+
+
+resource "aws_security_group" "endpoints_sg" {
+    name = "endpoints-sg"
+    vpc_id = var.vpc_id
+
+    ingress {
+        from_port = 443
+        to_port = 443
+        protocol = "tcp"
+        security_groups = [var.sg_ecs.id]
+    }
+}

@@ -26,3 +26,15 @@ variable "alb_sg_id" {
 variable "vpc_id" {
     type = string
 }
+
+variable "execution_role_arn" {
+    type = string
+}
+
+variable "task_role_arn" {
+    type = string
+}
+
+variable "bucket_name" {
+    type = string
+}
