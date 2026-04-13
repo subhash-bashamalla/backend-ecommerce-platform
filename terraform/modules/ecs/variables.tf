@@ -46,3 +46,11 @@ variable "log_group_name" {
 variable "region_aws" {
     type = string
 }
+
+variable "db_endpoint" {
+    type = string
+}
+
+variable "redis_endpoint" {
+    type = string
+}

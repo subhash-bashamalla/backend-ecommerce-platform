@@ -10,6 +10,10 @@ output "sg_db_id" {
   value = aws_security_group.sg_db.id
 }
 
+output "sg_redis_id" {
+  value = aws_security_group.sg_redis.id
+}
+
 output "endpoint_sg_id" {
   value = aws_security_group.endpoints_sg.id
 }

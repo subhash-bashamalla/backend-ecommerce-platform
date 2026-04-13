@@ -30,6 +30,41 @@ resource "aws_ecs_task_definition" "ecomm_app_task_def" {
                     awslogs-stream-prefix = "ecs"
                 }
             }
+
+            environment = [
+                {
+                    name = "DB_HOST"
+                    value = var.db_endpoint
+                },
+                {
+                    name = "DB_NAME"
+                    value = "appdb"
+                },
+                {
+                    name = "DB_PORT"
+                    value = "5432"
+                },
+                {
+                    name = "DB_USER"
+                    value = "postgres"
+                },
+                {
+                    name = "DB_PASSWORD"
+                    value = "pw"
+                }
+            ]
+
+
+            environment = [
+                {
+                    name = "REDIS_HOST"
+                    value = var.redis_endpoint
+                },
+                {
+                    name = "REDIS_PORT"
+                    value = "6379"
+                }
+            ]
         }
     ])
 }

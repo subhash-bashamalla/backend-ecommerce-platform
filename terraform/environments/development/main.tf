@@ -35,7 +35,9 @@ module "ecs" {
     execution_role_arn = module.iam.ecs_execution_role_arn
     log_group_name = module.cloudwatch.log_group_name
     region_aws = var.region_aws
-    bucket_name = module.s3.
+    bucket_name = module.s3.bucket_name
+    db_endpoint = module.db.db_endpoint
+    redis_endpoint = module.redis.redis_endpoint
     
 }
 
@@ -62,12 +64,27 @@ module "iam" {
 }
 
 
+module "redis" {
+    source = "../../modules/redis"
+    env_name = "development"
+    private_subnets = module.vpc.private_subnets
+    redis_sg_id = module.sg.sg_redis_id
+}
+
+
 module "db" {
     source = "../../modules/database"
     env_name = "development"
     private_subnets = module.vpc.private_subnets
     db_sg_id = module.sg.sg_db_id
 }
+
+
+module "s3" {
+    source = "../../modules/s3"
+    env_name = "development"
+}
+
 
 module "cloudwatch" {
     source = "../../modules/cloudwatch"
