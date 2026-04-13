@@ -18,6 +18,7 @@ terraform {
 
 module "vpc" {
     source = "./modules/vpc"
+    private_subnets = module.sg.
 }
 
 
@@ -59,7 +60,8 @@ module "sg" {
 module "iam" {
     source = "../../modules/iam"
     env_name = "development"
-    vpc_id = module.vpc.vpc_id
+    bucket_name = module.sg.bucket_name
+    task_role_name = module.ia.mecs_task_role_name
 
 }
 
