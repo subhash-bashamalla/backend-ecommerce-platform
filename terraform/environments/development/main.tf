@@ -18,7 +18,6 @@ terraform {
 
 module "vpc" {
     source = "./modules/vpc"
-    private_subnets = module.sg.
 }
 
 
