@@ -76,7 +76,7 @@ module "redis" {
 module "db" {
     source = "../../modules/database"
     env_name = "development"
-    private_subnets = module.vpc.private_subnets
+    private_subnet_ids = module.vpc.private_subnet_ids
     db_sg_id = module.sg.sg_db_id
 }
 

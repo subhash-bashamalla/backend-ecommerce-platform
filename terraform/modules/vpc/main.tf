@@ -106,9 +106,3 @@ resource "aws_route_table_association" "private_rta" {
     subnet_id = each.value.id
     route_table_id = aws_route_table.private_rt.id
 }
-
-
-resource "aws_db_subnet_group" "db_subnet_grp" {
-    name = "${var.env_name}-db-subnet-group"
-    subnet_ids = var.private_subnets
-}
