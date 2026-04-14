@@ -45,3 +45,14 @@
       --config.file=/opt/prometheus/prometheus.yml \
       --web.listen-address="0.0.0.0:9090" &
 
+
+- name: Prometheus Health check
+  uri:
+    url: http://localhost:9090/-/healthy
+    method: GET
+    status_code: 200
+  register: prometheus_health
+  retries: 15
+  delay: 3
+  until: prometheus_health.status == 200
+

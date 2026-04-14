@@ -55,3 +55,53 @@ resource "aws_iam_role_policy_attachment" "ecs_exec_policy" {
 }
 
 
+resource "aws_iam_role" "grafana_ec2_role" {
+    name = "${var.env_name}-grafana-ec2-role"
+
+    assume_role_policy = jsonencode({
+        Version = "2012-10-17"
+        Statement = [
+            {
+                Effect = "Allow"
+                Principal = {
+                    Service = "ec2.amazonaws.com"
+                }
+                Action = "sts:AssumeRole"
+            }
+        ]
+    })
+}
+
+
+resource "aws_iam_policy" "grafana_cloudwatch_policy" {
+    name = "${var.env_name}-grafana-cloudwatch-policy"
+
+    policy = jsonencode({
+        Version = "2012-10-17"
+        Statement = [
+            {
+                Effect = "Allow"
+                Action = [
+                    "cloudwatch:*",
+                    "ec2:Describe*",
+                    "logs:*"
+                ]
+                Resource = "*"
+            }
+        ]
+    })
+}
+
+
+resource "aws_iam_role_policy_attachment" "attach_grafana" {
+    policy_arn = aws_iam_role_policy.grafana_cloudwatch_policy.arn
+    role = aws_iam_role.grafana_ec2_role.name
+}
+
+
+resource "aws_iam_instance_profile" "grafana_profile" {
+    name = "${var.env_name}-grafana-instance-profile"
+    role = aws_iam_role.grafana_ec2_role.name
+}
+
+

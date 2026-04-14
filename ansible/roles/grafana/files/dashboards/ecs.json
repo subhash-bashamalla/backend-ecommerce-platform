@@ -1,0 +1,17 @@
+{
+    "title": "ECS Metrics",
+    "panels": [
+        {
+            "type": "graph",
+            "title": "ECS CPU Utilization",
+            "targets": [
+                {
+                "namespace": "AWS/ECS",
+                "metricName": "CPUUtilization",
+                "statistics": ["Average"]
+                }
+
+            ]
+        }
+    ]
+}

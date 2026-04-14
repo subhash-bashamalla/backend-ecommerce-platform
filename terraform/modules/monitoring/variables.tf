@@ -29,3 +29,7 @@ variable "public_subnet_id" {
 variable "monitoring_sg_id" {
     type = string
 }
+
+variable "grafana_instance_profile_name" {
+    type = string
+}

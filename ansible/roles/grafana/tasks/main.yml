@@ -22,3 +22,38 @@
     name: grafana-server
     state: started
     enabled: yes
+
+
+- name: Create datasource provisioning directory
+  file:
+    path: /etc/grafana/provisioning/datasources
+    state: directory
+    group: root
+    owner: root
+    mode: '0755'
+
+
+- name: Copy Prometheus datasource configuration
+  copy:
+    src: datasources.yml
+    dest: /etc/grafana/provisioning/datasources/datasources.yml
+    owner: root
+    group: root
+    mode: '0644'
+
+
+- name: Restart Grafana to apply datasource
+  systemd:
+    name: grafana-server
+    state: restarted
+
+
+- name: Grafana Health check
+  uri:
+    url: http://localhost:3000/api/health
+    status_code: 200
+    method: GET
+  register: grafana_health
+  retries: 15
+  delay: 5
+  until: grafana_health.status == 200

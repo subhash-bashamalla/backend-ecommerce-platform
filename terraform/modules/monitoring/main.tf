@@ -4,6 +4,7 @@ resource "aws_instance" "monitoring_server" {
     ami = var.ami
     key_name = var.key_name
     vpc_security_group_ids = [var.monitoring_sg_id]
+    iam_instance_profile = var.grafana_instance_profile_name
 
     tags = {
         Name = "${var.env_name}-monitoring-server"

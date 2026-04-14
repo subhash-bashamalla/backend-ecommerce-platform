@@ -122,6 +122,7 @@ module "monitoring" {
     key_name = var.key_name
     my_ip = var.my_ip
     monitoring_sg_id = module.sg.monitoring_sg_id
+    grafana_instance_profile_name = module.iam.grafana_instance_profile_name
 }
 
 
