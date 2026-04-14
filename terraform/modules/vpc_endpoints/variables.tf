@@ -17,3 +17,8 @@ variable "region_aws" {
 variable "sg_ecs_id" {
     type = string
 }
+
+variable "env_name" {
+    type = string
+}
+

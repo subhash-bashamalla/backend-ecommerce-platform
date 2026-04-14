@@ -4,7 +4,7 @@ provider "aws" {
 /*
 terraform {
     backend "s3" {
-        bucket = "2026-ecomm-back-app-terraform-state-bucket"
+        bucket = "2026-ecomm-back-app-terraform-state-bucket-${var.env_name}"
         key = "abc"
         region = "us-east-1"
         dynamodb_table = "2026-ecomm-back-app-terraform-state-lock-table"
@@ -23,7 +23,7 @@ module "vpc" {
 
 module "ecs" {
     source = "../../modules/ecs"
-    env_name = "development"
+    env_name = var.env_name
     app_image = "${var.account_id}.dkr.ecr.{var.region_aws}.amazonaws.com/${var.app_name}:dev"
     vpc_id = module.vpc.vpc_id
     subnets = module.vpc.public_subnets
@@ -43,7 +43,7 @@ module "ecs" {
 
 module "lb" {
     source = "../../modules/load_balancer"
-    env_name = "development"
+    env_name = var.env_name
     vpc_id = module.vpc.vpc_id
     public_subnets = module.vpc.public_subnets
     sg_alb_id = module.sg.sg_alb_id
@@ -51,14 +51,14 @@ module "lb" {
 
 module "sg" {
     source = "../../modules/security_groups"
-    env_name = "development"
+    env_name = var.env_name
     vpc_id = module.vpc.vpc_id   
 }
 
 
 module "iam" {
     source = "../../modules/iam"
-    env_name = "development"
+    env_name = var.env_name
     bucket_name = module.sg.bucket_name
     task_role_name = module.ia.mecs_task_role_name
 
@@ -67,7 +67,7 @@ module "iam" {
 
 module "redis" {
     source = "../../modules/redis"
-    env_name = "development"
+    env_name = var.env_name
     private_subnets = module.vpc.private_subnets
     redis_sg_id = module.sg.sg_redis_id
 }
@@ -75,7 +75,7 @@ module "redis" {
 
 module "db" {
     source = "../../modules/database"
-    env_name = "development"
+    env_name = var.env_name
     private_subnet_ids = module.vpc.private_subnet_ids
     db_sg_id = module.sg.sg_db_id
 }
@@ -83,13 +83,13 @@ module "db" {
 
 module "s3" {
     source = "../../modules/s3"
-    env_name = "development"
+    env_name = var.env_name
 }
 
 
 module "cloudwatch" {
     source = "../../modules/cloudwatch"
-    env_name = "development"
+    env_name = var.env_name
     service_name = "ecpmm-back-app"
     cluster_name = "dev-cluster"
     alb_arn_suffix = module.lb.arn_suffix
@@ -103,11 +103,25 @@ module "cloudwatch" {
 
 module "vpc_endpoints" {
     source = "../../modules/vpc_endpoints"
+    env_name = var.env_name
     vpc_id = module.vpc.vpc_id
     region_aws = var.region_aws
     private_subnet_ids = module.vpc.private_subnet_ids
     route_table_ids = [module.vpc.private_route_table_id]
     sg_ecs_id = module.sg.sg_ecs_id
+}
+
+
+module "monitoring" {
+    source = "../../modules/monitoring"
+    env_name = var.env_name
+    vpc_id = module.vpc.vpc_id
+    public_subnet_id = module.vpc.public_subnet_ids[0]
+
+    ami = var.ami
+    key_name = var.key_name
+    my_ip = var.my_ip
+    monitoring_sg_id = module.sg.monitoring_sg_id
 }
 
 

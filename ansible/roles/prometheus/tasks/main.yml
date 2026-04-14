@@ -1,0 +1,47 @@
+- name: Install dependencies
+  yum:
+    name:
+      - tar
+      - wget
+    state: present
+
+
+- name: Download Prometheus
+  get_url:
+    url: https://github.com/prometheus/prometheus/releases/latest/download/prometheus-2.48.0.linux-amd64.tar.gz
+    dest: /tmp/prometheus.tar.gz
+
+
+- name: Extract Prometheus
+  unarchive:
+    src: /tmp/prometheus.tar.gz
+    dest: /opt/
+    remote_src: yes
+
+
+- name: Create Symlink
+  file:
+    src:  /opt/prometheus-2.48.0.linux-amd64
+    dest: /opt/prometheus
+    state: link
+
+
+- name: Create Configuration file
+  copy:
+    dest: /opt/prometheus/prometheus.yml
+    content: |
+      global:
+        scrape_interval: 15s
+
+      scrape_configs:
+        - job_name: 'prometheus'
+          static_configs:
+            - targets: ['localhost:9090']
+
+
+- name: Start Prometheus
+  shell:
+    nohup /opt/prometheus/prometheus \
+      --config.file=/opt/prometheus/prometheus.yml \
+      --web.listen-address="0.0.0.0:9090" &
+

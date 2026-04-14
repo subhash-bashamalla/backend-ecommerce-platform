@@ -17,3 +17,7 @@ output "sg_redis_id" {
 output "endpoint_sg_id" {
   value = aws_security_group.endpoints_sg.id
 }
+
+output "monitoring_sg_id" {
+  value = aws_security_group.monitoring_sg.id
+}

@@ -6,15 +6,15 @@ variable "region_aws" {
 
 variable "avail_zone" {
     type = list(string)
-    default = ["ap-south-1a", "ap-south-1b", "ap-south-1c"]
+    default = ["us-east-1a", "us-east-1b", "us-east-1c"]
     description = "AZ in which resource/s will be deployed"
 }
 
 
 variable "env_name" {
     description = "Environment name for which resource is created"
-    type = list(string)
-    default = ["development", "staging", "production"]
+    type = string
+    default = "development"
 }
 
 variable "account_id" {
