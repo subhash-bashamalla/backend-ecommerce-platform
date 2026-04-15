@@ -1,0 +1,69 @@
+{
+  "title": "ECS Metrics",
+  "panels": [
+
+  
+    {
+      "type": "timeseries",
+      "title": "ECS CPU Utilization",
+      "datasource": {
+        "type": "cloudwatch"
+      },
+      "targets": [
+        {
+          "namespace": "AWS/ECS",
+          "metricName": "CPUUtilization",
+          "statistics": ["Average"],
+          "region": "{{ region_aws }}",
+          "dimensions": {
+            "ClusterName": "{{ cluster_name }}",
+            "ServiceName": "{{ service_name }}"
+          }
+        }
+      ]
+    },
+
+
+
+    {
+      "type": "timeseries",
+      "title": "ECS Memory Utilization",
+      "datasource": {
+        "type": "cloudwatch"
+      },
+      "targets": [
+        {
+          "namespace": "AWS/ECS",
+          "metricName": "MemoryUtilization",
+          "statistics": ["Average"],
+          "region": "{{ region_aws }}",
+          "dimensions": {
+            "ClusterName": "{{ cluster_name }}",
+            "ServiceName": "{{ service_name }}"
+          }
+        }
+      ]
+    },
+
+
+    {
+      "type": "timeseries",
+      "title": "Running Task Count",
+      "datasource": {
+        "type": "cloudwatch"
+      },
+      "targets": [
+        {
+          "namespace": "AWS/ECS",
+          "metricName": "RunningTaskCount",
+          "statistics": ["Average"],
+          "region": "{{ region_aws }}",
+          "dimensions": {
+            "ClusterName": "{{ cluster_name }}",
+            "ServiceName": "{{ service_name }}"
+          }
+        }
+      ]
+    }
+  ]
+}

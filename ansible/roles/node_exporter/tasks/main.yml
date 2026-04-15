@@ -1,0 +1,52 @@
+- name: Create node exporter user
+  user:
+    name: node_exporter
+    shell: /sbin/nologin
+
+
+- name: Download node exporter
+  get_url:
+    url: https://github.com/prometheus/node_exporter/releases/latest/download/node_exporter-1.8.1.linux-amd64.tar.gz
+    dest: /tmp/node_exporter.tar.gz
+
+
+- name: Extract node exporter
+  unarchive:
+    src: /tmp/node_exporter.tar.gz
+    dest: /opt/
+    remote_src: yes
+
+
+- name: Move Binary
+  copy:
+    src: /opt/node_exporter-1.8.1.linux-amd64/node_exporter
+    dest: /usr/local/bin/node_exporter
+    mode: '0755'
+    remote_src: yes
+
+
+- name: Create systemd service
+  copy:
+    dest: /etc/systemd/system/node_exporter.service
+    content: |
+      [Unit]
+      Description=Node Exporter
+      After=network.target
+
+      [Service]
+      user=node_exporter
+      ExecStart=/usr/local/bin/node_exporter
+
+      [Install]
+      WantedBy=default.target
+
+
+- name: Reload systemd
+  command: systemctl daemon-reexec
+
+
+- name: Enable & Start Node Exporter
+  systemd:
+    name: node_exporter
+    state: started
+    enabled: yes

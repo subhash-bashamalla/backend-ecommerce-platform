@@ -1,0 +1,41 @@
+{
+  "title": "RDS Metrics",
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "DB CPU Utilization",
+      "datasource": {
+        "type": "cloudwatch"
+      },
+      "targets": [
+        {
+          "namespace": "AWS/RDS",
+          "metricName": "CPUUtilization",
+          "statistics": ["Average"],
+          "region": "{{ aws_region }}",
+          "dimensions": {
+            "DBInstanceIdentifier": "{{ db_instance_id }}"
+          }
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "DB Connections",
+      "datasource": {
+        "type": "cloudwatch"
+      },
+      "targets": [
+        {
+          "namespace": "AWS/RDS",
+          "metricName": "DatabaseConnections",
+          "statistics": ["Average"],
+          "region": "{{ aws_region }}",
+          "dimensions": {
+            "DBInstanceIdentifier": "{{ db_instance_id }}"
+          }
+        }
+      ]
+    }
+  ]
+}

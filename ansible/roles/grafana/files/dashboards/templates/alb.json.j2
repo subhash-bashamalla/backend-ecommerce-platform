@@ -1,0 +1,59 @@
+{
+  "title": "ALB Metrics",
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Request Count",
+      "datasource": {
+        "type": "cloudwatch"
+      },
+      "targets": [
+        {
+          "namespace": "AWS/ApplicationELB",
+          "metricName": "RequestCount",
+          "statistics": ["Sum"],
+          "region": "{{ aws_region }}",
+          "dimensions": {
+            "LoadBalancer": "{{ alb_arn_suffix }}"
+          }
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Target Response Time",
+      "datasource": {
+        "type": "cloudwatch"
+      },
+      "targets": [
+        {
+          "namespace": "AWS/ApplicationELB",
+          "metricName": "TargetResponseTime",
+          "statistics": ["Average"],
+          "region": "{{ aws_region }}",
+          "dimensions": {
+            "LoadBalancer": "{{ alb_arn_suffix }}"
+          }
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "5XX Errors",
+      "datasource": {
+        "type": "cloudwatch"
+      },
+      "targets": [
+        {
+          "namespace": "AWS/ApplicationELB",
+          "metricName": "HTTPCode_Target_5XX_Count",
+          "statistics": ["Sum"],
+          "region": "{{ aws_region }}",
+          "dimensions": {
+            "LoadBalancer": "{{ alb_arn_suffix }}"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -57,3 +57,45 @@
   retries: 15
   delay: 5
   until: grafana_health.status == 200
+
+
+- name: Create dashboard provisioning directory
+  file:
+    path: /etc/grafana/provisioning/dashboards
+    state: directory
+
+
+- name: Copy dashboard provider configuration
+  copy:
+    src: dashboards.yml
+    dest: /etc/grafana/provisioning/dashboards/dashboards.yml
+
+
+- name: Copy Static Dashboards
+  copy:
+    src: dashboards/static/
+    dest: /etc/grafana/provisioning/dashboards/
+
+
+- name: Render ECS Dashboard
+  template:
+    src: dashboards/templates/ecs.json.j2
+    dest: /etc/grafana/provisioning/dashboards/ecs.json
+
+
+- name: Render ALB Dashboard
+  template:
+    src: dashboards/templates/alb.json.j2
+    dest: /etc/grafana/provisioning/dashboards/alb.json
+
+
+- name: Render RDS Dashboard
+  template:
+    src: dashboards/templates/rds.json.j2
+    dest: /etc/grafana/provisioning/dashboards/rds.json
+
+
+- name: Restart Grafana
+  systemd:
+    name: grafana-server
+    state: restarted

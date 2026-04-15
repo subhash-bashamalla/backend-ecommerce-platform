@@ -5,3 +5,8 @@
   roles:
     - prometheus
     - grafana
+    - node_exporter
+
+
+  vars_files:
+    -../../terraform/terraform_outputs.json

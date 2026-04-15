@@ -26,22 +26,16 @@
     state: link
 
 
-- name: Create Configuration file
+- name: Copy Prometheus Configuration file
   copy:
+    src: prometheus.yml
     dest: /opt/prometheus/prometheus.yml
-    content: |
-      global:
-        scrape_interval: 15s
-
-      scrape_configs:
-        - job_name: 'prometheus'
-          static_configs:
-            - targets: ['localhost:9090']
+  notify: Restart Prometheus
 
 
 - name: Start Prometheus
-  shell:
-    nohup /opt/prometheus/prometheus \
+  shell: >
+    pgrep prometheus || nohup /opt/prometheus/prometheus \
       --config.file=/opt/prometheus/prometheus.yml \
       --web.listen-address="0.0.0.0:9090" &
 

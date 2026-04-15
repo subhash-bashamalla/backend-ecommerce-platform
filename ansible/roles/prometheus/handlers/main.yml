@@ -1,0 +1,6 @@
+- name: Restart Prometheus
+  shell: |
+    pkill prometheus || true
+    nohup /opt/prometheus/prometheus \
+      --config.file=/opt/prometheus/prometheus.yml \
+      --web.listen-address="0.0.0.0:9090" &

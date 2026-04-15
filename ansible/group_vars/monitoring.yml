@@ -1,0 +1,5 @@
+cluster_name: 
+service_name: 
+db_instance_id:
+alb_arn_suffix:
+region_aws: us-east-1
