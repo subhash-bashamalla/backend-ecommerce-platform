@@ -27,3 +27,15 @@ variable "app_name" {
     description = "Application image for ECR Image"
     default = "backend-ecommerce-platform"
 }
+
+variable "ami" {
+    type = string
+}
+
+variable "key_name" {
+    type = string
+}
+
+variable "my_ip" {
+    type = string
+}
