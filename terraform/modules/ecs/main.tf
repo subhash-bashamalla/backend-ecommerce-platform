@@ -66,6 +66,15 @@ resource "aws_ecs_task_definition" "ecomm_app_task_def" {
                     value = "6379"
                 }
             ]
+
+
+            "healthCheck": {
+                "command": ["CMD-SHELL", "curl -f http://localhost:5000/health || exit 1"],
+                "interval": 30,
+                "timeout": 5,
+                "retries": 3,
+                "startPeriod": 10
+            }
         }
     ])
 }
@@ -93,5 +102,34 @@ resource "aws_ecs_service" "ecomm_app_service" {
     deployment_minimum_healthy_percent = 45
     deployment_maximum_percent = 200
 
+}
+
+
+resource "aws_appautoscaling_target" "ecs" {
+    min_capacity = 1
+    max_capacity = 6
+    resource_id = "service/${aws_ecs_cluster.app_cluster.name}/${aws_ecs_service.ecomm_app_service.name}"
+    service_namespace = "ecs"
+    scalable_dimension = "ecs:service:DesiredCount"
+}
+
+
+resource "aws_appautoscaling_policy" "pol_cpu" {
+    name = "ecs-cpu-scaling"
+    policy_type = "TargetTrackingScaling"
+    resource_id = aws_appautoscaling_target.ecs.resource_id
+    scalable_dimension = aws_appautoscaling_target.ecs.scalable_dimension
+    service_namespace = aws_appautoscaling_target.ecs.service_namespace
+
+    target_tracking_scaling_policy_configuration {
+        target_value = 60.0
+
+        predefined_metric_specification {
+            predefined_metric_type = "ECSServiceAverageCPUUtilization"
+        }
+
+        scale_in_cooldown = 60
+        scale_out_cooldown = 60
+    }
 }
 

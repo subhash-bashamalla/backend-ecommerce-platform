@@ -47,6 +47,7 @@ module "lb" {
     vpc_id = module.vpc.vpc_id
     public_subnets = module.vpc.public_subnets
     sg_alb_id = module.sg.sg_alb_id
+    alb_logs_bucket = module.s3.alb_logs_bucket_name
 }
 
 module "sg" {

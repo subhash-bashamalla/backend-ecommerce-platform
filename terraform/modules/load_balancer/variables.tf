@@ -13,3 +13,7 @@ variable "sg_alb_id" {
 variable "env_name" {
     type = string
 }
+
+variable "alb_logs_bucket" {
+    type = string
+}

@@ -20,3 +20,27 @@ resource "aws_s3_bucket_versioning" "bucket_main_versioning" {
         status = "Enabled"
     }
 }
+
+
+resource "aws_s3_bucket" "alb_logs" {
+    bucket = "${var.env_name}-logs-alb"
+}
+
+
+resource "aws_s3_bucket_policy" "alb_logs_policy" {
+    bucket = aws_s3_bucket.alb_logs.id
+
+    policy = jsonencode({
+        Version = "2012-10-17",
+        Statement = [
+            {
+                Effect = "Allow"
+            Principal = {
+                Service = "logdelivery.elasticloadbalancing.amazonaws.com"
+            },
+            Action = "s3:PutObject",
+            Resource = "${aws_s3_bucket.alb_logs_arn}/*"
+            }
+        ]
+    })
+}

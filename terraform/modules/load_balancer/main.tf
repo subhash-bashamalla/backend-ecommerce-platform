@@ -4,6 +4,11 @@ resource "aws_lb" "ecomm-back-app" {
     security_groups = [var.sg_alb_id]
     load_balancer_type = "application"
 
+    access_logs {
+        bucket = var.alb_logs_bucket
+        enabled = true
+    }
+
     tags = {
         Name = "${var.env_name}-alb"
     }
@@ -24,6 +29,7 @@ resource "aws_lb_target_group" "ecomm-back-app" {
         timeout = 10
         healthy_threshold = 2
         unhealthy_threshold = 2
+        matcher = "200"
     }
 }
 
@@ -37,3 +43,24 @@ resource "aws_lb_listener" "http" {
         target_group_arn = aws_lb_target_group.ecomm-back-app.arn
     }
 }
+
+/*
+resource "aws_acm_certificate" "certificate" {
+    domain_mname = ""
+    validation_method = "DNS"
+}
+
+
+resource "aws_lb_listener" "https" {
+    load_balancer_arn = aws_lb.ecomm-back-app.arn
+    port = 443
+    protocol = "HTTPS"
+    ssl_policy = "ELBSecurityPolicy-2016-08"
+    certification_arn = aws_acm_certificate.certificate.arn
+    default_action {
+        type = "forward"
+        target_group_arn = aws_lb_target_group.ecomm-back-app.arn
+    }
+}
+
+*/
