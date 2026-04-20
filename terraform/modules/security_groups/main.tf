@@ -110,6 +110,11 @@ resource "aws_security_group" "endpoints_sg" {
 }
 
 
+data "http" "my_ip" {
+    url = "https://checkip.amazonaws.com/"
+}
+
+
 resource "aws_security_group" "monitoring_sg" {
     name = "${var.env_name}-monitoring-sg"
     vpc_id = var.vpc_id
@@ -118,7 +123,7 @@ resource "aws_security_group" "monitoring_sg" {
         from_port = 22
         to_port = 22
         protocol = "tcp"
-        cidr_blocks = [var.my_ip]
+        cidr_blocks = ["${chomp(data.http.my_ip.response_body)}/32"]
     }
 
     ingress {

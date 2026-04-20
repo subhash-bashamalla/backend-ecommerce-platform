@@ -1,6 +1,13 @@
 provider "aws" {
     region = var.region_aws
 }
+
+data "aws_caller_identity" "account" {}
+locals {
+    account_id = data.aws_caller_identity.account.account_id
+}
+
+
 /*
 terraform {
     backend "s3" {
@@ -25,7 +32,7 @@ module "vpc" {
 module "ecs" {
     source = "../../modules/ecs"
     env_name = var.env_name
-    app_image = "${var.account_id}.dkr.ecr.{var.region_aws}.amazonaws.com/${var.app_name}:dev"
+    app_image = "${local.account_id}.dkr.ecr.{var.region_aws}.amazonaws.com/${var.app_name}:dev"
     vpc_id = module.vpc.vpc_id
     subnets = module.vpc.public_subnet_ids
     alb_sg_id = module.sg.sg_alb_id
@@ -55,7 +62,6 @@ module "sg" {
     source = "../../modules/security_groups"
     env_name = var.env_name
     vpc_id = module.vpc.vpc_id   
-    my_ip = var.my_ip
 }
 
 
@@ -119,11 +125,9 @@ module "monitoring" {
     source = "../../modules/monitoring"
     env_name = var.env_name
     vpc_id = module.vpc.vpc_id
-    public_subnet_id = module.vpc.public_subnet_ids[0]
-
-    ami = var.ami
     key_name = var.key_name
-    my_ip = var.my_ip
+    public_subnet_id = module.vpc.public_subnet_ids[0]
     monitoring_sg_id = module.sg.monitoring_sg_id
+    instance_type = var.instance_type
     grafana_instance_profile_name = module.iam.grafana_instance_profile_name
 }

@@ -1,6 +1,5 @@
 variable "region_aws" {
     type = string
-    default = "us-east-1"
     description = "AWS Region in which resources are deployed"
 }
 
@@ -14,28 +13,18 @@ variable "avail_zone" {
 variable "env_name" {
     description = "Environment name for which resource is created"
     type = string
-    default = "development"
 }
 
-variable "account_id" {
-    description = "AWS Account Id"
-    type = string
-}
 
 variable "app_name" {
     type = string
     description = "Application image for ECR Image"
-    default = "backend-ecommerce-platform"
-}
-
-variable "ami" {
-    type = string
 }
 
 variable "key_name" {
     type = string
 }
 
-variable "my_ip" {
+variable "instance_type" {
     type = string
 }
