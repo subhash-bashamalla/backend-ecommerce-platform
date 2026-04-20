@@ -17,7 +17,8 @@ terraform {
 
 
 module "vpc" {
-    source = "./modules/vpc"
+    source = "../../modules/vpc"
+    env_name = var.env_name
 }
 
 
@@ -26,7 +27,7 @@ module "ecs" {
     env_name = var.env_name
     app_image = "${var.account_id}.dkr.ecr.{var.region_aws}.amazonaws.com/${var.app_name}:dev"
     vpc_id = module.vpc.vpc_id
-    subnets = module.vpc.public_subnets
+    subnets = module.vpc.public_subnet_ids
     alb_sg_id = module.sg.sg_alb_id
     ecs_sg_id = module.sg.sg_ecs_id
     tg_arn = module.lb.tg_arn
@@ -45,7 +46,7 @@ module "lb" {
     source = "../../modules/load_balancer"
     env_name = var.env_name
     vpc_id = module.vpc.vpc_id
-    public_subnets = module.vpc.public_subnets
+    public_subnet_ids = module.vpc.public_subnet_ids
     sg_alb_id = module.sg.sg_alb_id
     alb_logs_bucket = module.s3.alb_logs_bucket_name
 }
@@ -54,14 +55,14 @@ module "sg" {
     source = "../../modules/security_groups"
     env_name = var.env_name
     vpc_id = module.vpc.vpc_id   
+    my_ip = var.my_ip
 }
 
 
 module "iam" {
     source = "../../modules/iam"
     env_name = var.env_name
-    bucket_name = module.sg.bucket_name
-    task_role_name = module.ia.mecs_task_role_name
+    bucket_name = module.s3.bucket_name
 
 }
 
@@ -69,7 +70,7 @@ module "iam" {
 module "redis" {
     source = "../../modules/redis"
     env_name = var.env_name
-    private_subnets = module.vpc.private_subnets
+    private_subnet_ids = module.vpc.private_subnet_ids
     redis_sg_id = module.sg.sg_redis_id
 }
 
@@ -93,7 +94,7 @@ module "cloudwatch" {
     env_name = var.env_name
     service_name = "ecpmm-back-app"
     cluster_name = "dev-cluster"
-    alb_arn_suffix = module.lb.arn_suffix
+    alb_arn_suffix = module.lb.alb_arn_suffix
     region_aws = var.region_aws
     db_instance_id = null
     redis_cluster_id = null
@@ -110,6 +111,7 @@ module "vpc_endpoints" {
     private_subnet_ids = module.vpc.private_subnet_ids
     route_table_ids = [module.vpc.private_route_table_id]
     sg_ecs_id = module.sg.sg_ecs_id
+    endpoints_sg_id = module.sg.endpoint_sg_id
 }
 
 
@@ -125,10 +127,3 @@ module "monitoring" {
     monitoring_sg_id = module.sg.monitoring_sg_id
     grafana_instance_profile_name = module.iam.grafana_instance_profile_name
 }
-
-
-
-
-
-
-
