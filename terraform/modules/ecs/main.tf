@@ -8,7 +8,7 @@ resource "aws_ecs_task_definition" "ecomm_app_task_def" {
     memory = "512"
     network_mode = "awsvpc"
     execution_role_arn = var.execution_role_arn
-    task_role_arn = var.task_role_name
+    task_role_arn = var.task_role_arn
     requires_compatibilities = ["FARGATE"]
 
     container_definitions = jsonencode([
