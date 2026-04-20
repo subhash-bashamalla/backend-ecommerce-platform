@@ -3,7 +3,7 @@ variable "env_name" {
 }
 
 variable "private_subnet_ids" {
-    type = string
+    type = list(string)
 }
 
 variable "db_sg_id" {

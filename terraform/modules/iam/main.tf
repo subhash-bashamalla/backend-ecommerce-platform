@@ -15,7 +15,7 @@ resource "aws_iam_role" "ecs_task_role" {
 
 
 resource "aws_iam_role_policy" "ecs_s3_access" {
-    role = var.task_role_name
+    role = aws_iam_role.ecs_task_role.name
 
     policy = jsonencode({
         Version = "2012-10-17"
@@ -94,7 +94,7 @@ resource "aws_iam_policy" "grafana_cloudwatch_policy" {
 
 
 resource "aws_iam_role_policy_attachment" "attach_grafana" {
-    policy_arn = aws_iam_role_policy.grafana_cloudwatch_policy.arn
+    policy_arn = aws_iam_policy.grafana_cloudwatch_policy.arn
     role = aws_iam_role.grafana_ec2_role.name
 }
 

@@ -14,7 +14,7 @@ resource "aws_vpc_endpoint" "ecr_api" {
     vpc_id = var.vpc_id
     service_name = "com.amazonaws.${var.region_aws}.ecr.api"
     subnet_ids = var.private_subnet_ids
-    security_group_ids = [aws_security_group.endpoints_sg.id]
+    security_group_ids = [var.endpoints_sg_id]
     vpc_endpoint_type = "Interface"
     private_dns_enabled = true
 
@@ -28,7 +28,7 @@ resource "aws_vpc_endpoint" "ecr_dkr" {
     vpc_id = var.vpc_id
     service_name = "com.amazonaws.${var.region_aws}.ecr.dkr"
     subnet_ids = var.private_subnet_ids
-    security_group_ids = [aws_security_group.endpoints_sg.id]
+    security_group_ids = [var.endpoints_sg_id]
     vpc_endpoint_type = "Interface"
     private_dns_enabled = true
 
@@ -42,7 +42,7 @@ resource "aws_vpc_endpoint" "logs" {
     vpc_id = var.vpc_id
     service_name = "com.amazonaws.${var.region_aws}.logs"
     subnet_ids = var.private_subnet_ids
-    security_group_ids = [aws_security_group.endpoints_sg.id]
+    security_group_ids = [var.endpoints_sg_id]
     vpc_endpoint_type = "Interface"
     private_dns_enabled = true
 

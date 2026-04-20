@@ -1,6 +1,6 @@
-resource "aws_lb" "ecomm-back-app" {
+resource "aws_lb" "ecomm_back_app" {
     name = "${var.env_name}-alb"
-    subnets = var.public_subnets
+    subnets = var.public_subnet_ids
     security_groups = [var.sg_alb_id]
     load_balancer_type = "application"
 
@@ -35,7 +35,7 @@ resource "aws_lb_target_group" "ecomm-back-app" {
 
 
 resource "aws_lb_listener" "http" {
-    load_balancer_arn = aws_lb.ecomm-back-app.arn
+    load_balancer_arn = aws_lb.ecomm_back_app.arn
     port = 80
     protocol = "HTTP"
     default_action {

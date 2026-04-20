@@ -22,3 +22,6 @@ variable "env_name" {
     type = string
 }
 
+variable "endpoints_sg_id" {
+    type = string
+}

@@ -94,7 +94,7 @@ resource "aws_security_group" "endpoints_sg" {
         from_port = 443
         to_port = 443
         protocol = "tcp"
-        security_groups = [var.sg_ecs.id]
+        security_groups = [aws_security_group.sg_ecs.id]
     }
 
     egress {
@@ -114,7 +114,7 @@ resource "aws_security_group" "monitoring_sg" {
     name = "${var.env_name}-monitoring-sg"
     vpc_id = var.vpc_id
 
-    ingress = {
+    ingress  {
         from_port = 22
         to_port = 22
         protocol = "tcp"
