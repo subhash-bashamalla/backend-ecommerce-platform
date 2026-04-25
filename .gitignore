@@ -8,6 +8,8 @@
 **/*.tfvars
 **/*.tfvars.json
 
+**/ansible/tf_vars.yml
+
 # Optional (your choice)
 # Keep lock file → COMMENT this line
 # Ignore lock file → UNCOMMENT

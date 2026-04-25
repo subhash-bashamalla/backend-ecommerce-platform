@@ -1,12 +1,10 @@
 pipeline {
+
     agent { label 'jenkins-agent' }
     environment {
         AWS_REGION = "us-east-1"
         REPO_NAME = "backend-ecommerce-platform"
-        AWS_ACCOUNT_ID = $(aws sts get-caller-identity --query Account --output text)
-        IMAGE_NAME = $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME
-        IMAGE_TAG = "build -${BUILD_NUMBER}"
-        FULL_IMAGE = "${IMAGE_NAME}:${IMAGE_TAG}"
+        IMAGE_TAG = "build-${BUILD_NUMBER}"
         DEPLOYED = "false"
     }
 
@@ -44,16 +42,20 @@ pipeline {
         
         stage("Build Image") {
             steps {
-                sh '''
-                AWS_ACCOUNT_ID = $(aws sts get-caller-identity --query Account --output text)
-                IMAGE_NAME = $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME
-                IMAGE_TAG = "build -${BUILD_NUMBER}"
-                FULL_IMAGE = "${IMAGE_NAME}:${IMAGE_TAG}"
+                script {
+                    script {
+                    env.AWS_ACCOUNT_ID = sh(
+                        script: "aws sts get-caller-identity --query Account --output text",
+                        returnStdout: true
+                    ).trim()
 
-                docker build -t ${FULL_IMAGE} app/
-                '''
+                    env.IMAGE_NAME = "${env.AWS_ACCOUNT_ID}.dkr.ecr.${env.AWS_REGION}.amazonaws.com/${env.REPO_NAME}"
+                    env.FULL_IMAGE = "${env.IMAGE_NAME}:${env.IMAGE_TAG}"
+
+                    docker build -t ${FULL_IMAGE} app/
+                    }     
+                }    
             }
-            
         }
         
 
@@ -96,21 +98,50 @@ pipeline {
         
         stage("Push Image to Amazon ECR") {
             steps {
-                sh '''
+                sh """
                 aws ecr get-login-password --region $AWS_REGION \
                 | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
                     docker push ${FULL_IMAGE}
                     docker push ${IMAGE_NAME}:${params.VERSION}
-                    '''
+                    """
                 
             }
         }
 
         
-        stage("Set Dev Context") {
+        stage("Set Environment Context") {
             steps {
                 script {
-                    env.DEPLOYMENT_ENVIRONMENT = 'development'
+                    env.DEPLOYMENT_ENVIRONMENT = params.DEPLOYING_ENVIRONMENT
+
+
+                    def envMap = [
+                        "development": "Development",
+                        "staging": "Staging",
+                        "production": "Production"
+                    ]
+
+                    env.ENV_FOLDER = envMap[env.DEPLOYMENT_ENVIRONMENT]
+                    echo "Deploying to ${env.DEPLOYMENT_ENVIRONMENT}"
+                }
+            }
+        }
+
+
+        stage("Load Terraform Outputs") {
+            steps {
+                script {
+                    def tfvarsPath = "terraform/environments/${env.ENV_FOLDER}/ansible/tf_vars.yml"
+                    def tfVars = readYaml file: tfvarsPath
+
+                    env.SERVICE_NAME = tfVars.service_name
+                    env.CLUSTER_NAME = tfVars.cluster_name
+                    env.ALB_DNS = tfVars.alb_dns
+
+                    echo "Loaded Terraform outputs:"
+                    echo "Service: ${env.SERVICE_NAME}"
+                    echo "Cluster: ${env.CLUSTER_NAME}"
+                    echo "ALB: ${env.ALB_DNS}"
                 }
             }
         }
@@ -129,22 +160,30 @@ pipeline {
                 aws ecs update-service \
                 --cluster $CLUSTER_NAME \
                 --service $SERVICE_NAME \
+                -- region ${AWS_REGION} \
                 --force-new-deployment
 
 
                 aws ecs wait services-stable \
                 --cluster $CLUSTER_NAME \
                 --services $SERVICE_NAME
+                -- region ${AWS_REGION}
 
                 ALB_DNS=$(aws elbv2 describe-load-balancers \
                 --names $ALB_NAME \
                 --query "LoadBalancers[0].DNSName" \
                 --output text)
+                -- region ${AWS_REGION}
 
 
-                for a in {seq 1 15}; do
-                    curl -f http://$ALB_DNS/health && exit 0
-                    echo "Health check failed, Retrying...."
+                for a in ${seq 1 15}; do
+                    if
+                     curl -f http://$ALB_DNS/health; then
+                     echo "Development Service is Healthy"
+                     exit 0
+                    fi
+
+                    echo "Health check failed, Retrying $a/15 ...."
                     sleep 5
                 done
 
@@ -155,13 +194,6 @@ pipeline {
         }
 
 
-        stage("Set Staging Context") {
-            steps {
-                script {
-                    env.DEPLOYMENT_ENVIRONMENT = 'staging'
-                }
-            }
-        }
 
 
         stage("Deploy to Staging Environment") {
@@ -169,7 +201,9 @@ pipeline {
                 expression { currentBuild.currentResult == 'SUCCESS' }
             }
             steps {
-                input message: "Approve deployment to Staging?"
+                timeout(time: 15, unit: 'MINUTES') {
+                    input message: "Approve deployment to Staging?"
+                }
 
                sh '''
                 
@@ -181,22 +215,30 @@ pipeline {
                 aws ecs update-service \
                 --cluster $CLUSTER_NAME \
                 --service $SERVICE_NAME \
+                -- region ${AWS_REGION} \
                 --force-new-deployment
 
 
                 aws ecs wait services-stable \
                 --cluster $CLUSTER_NAME \
                 --services $SERVICE_NAME
+                -- region ${AWS_REGION}
 
                 ALB_DNS=$(aws elbv2 describe-load-balancers \
                 --names $ALB_NAME \
                 --query "LoadBalancers[0].DNSName" \
                 --output text)
+                -- region ${AWS_REGION}
 
 
-                for a in {seq 1 15}; do
-                    curl -f http://$ALB_DNS/health && exit 0
-                    echo "Health check failed, Retrying...."
+                for a in ${seq 1 15}; do
+                    if
+                        curl -f http://$ALB_DNS/health; then
+                        echo "Staging Service is Healthy"
+                        exit 0
+                    fi
+                        
+                    echo "Health check failed, Retrying $a/15 ...."
                     sleep 5
                 done
 
@@ -207,14 +249,6 @@ pipeline {
         }
 
 
-
-        stage("Set Prod Context") {
-            steps {
-                script {
-                    env.DEPLOYMENT_ENVIRONMENT = 'production'
-                }
-            }
-        }
 
 
         stage("Deploy Production Environment") {
@@ -234,6 +268,7 @@ pipeline {
                 aws ecs update-service \
                 --cluster $CLUSTER_NAME \
                 --service $SERVICE_NAME \
+                -- region ${AWS_REGION} \
                 --force-new-deployment
 
 
@@ -247,9 +282,14 @@ pipeline {
                 --output text)
 
 
-                for a in {seq 1 15}; do
-                    curl -f http://$ALB_DNS/health && exit 0
-                    echo "Health check failed, Retrying...."
+                for a in ${seq 1 15}; do
+                    if
+                      curl -f http://$ALB_DNS/health; then
+                      echo "Production Service is Healthy"
+                      exit 0
+                    fi
+
+                    echo "Health check failed, Retrying $a/15...."
                     sleep 5
                 done
 
@@ -354,7 +394,7 @@ pipeline {
 
                     sh """
                     LATEST_VERSION=$(aws s3 cp s3://2026-ecomm-back-app/$DEPLOYMENT_ENVIRONMENT/latest-version.txt - | tr -d '\\n')
-                    FULL_IMAGE=$IMAGE_NAME:$LATEST_VERSION
+                    FULL_IMAGE=${IMAGE_NAME}:${LATEST_VERSION}
 
                     echo "Rolling back to $FULL_IMAGE"
 
@@ -379,6 +419,7 @@ pipeline {
                     aws ecs update-service \
                         --cluster $CLUSTER_NAME \
                         --service $SERVICE_NAME \
+                        -- region ${AWS_REGION} \
                         --task-definition ${DEPLOYMENT_ENVIRONMENT}-ecomm-app-task
 
                     aws ecs wait services-stable \

@@ -134,6 +134,15 @@ module "monitoring" {
 }
 
 
+module "ansible_vars" {
+    source = "../../modules/ansible_vars"
+    db_instance_id = module.db.db_instance_id
+    cluster_name = module.ecs.ecs_cluster_name
+    service_name = module.ecs.ecs_service_name
+    output_path = "${path.module}/ansible/tf_vars.yml"
+}
+
+
 
 
 

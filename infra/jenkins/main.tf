@@ -2,6 +2,10 @@ provider "aws" {
     region = var.region_aws
 }
 
+data "http" "my-ip" {
+    url = "https://checkip.amazonaws.com"
+}
+
 
 data "aws_ami" "amazon_linux" {
     most_recent = true
@@ -51,14 +55,14 @@ resource "aws_security_group" "jenkins_sg" {
         from_port = 8080
         to_port = 8080
         protocol = "tcp"
-        cidr_blocks = ["${var.my_ip}/32"]
+        cidr_blocks = ["${chomp(data.http.my_ip.response_body)}/32"]
     }
 
     ingress {
         from_port = 22
         to_port = 22
         protocol = "tcp"
-        cidr_blocks = ["${var.my_ip}/32"]
+        cidr_blocks = ["${chomp(data.http.my_ip.response_body)}/32"]
     }
 
     egress {
