@@ -13,6 +13,18 @@ resource "aws_ecs_task_definition" "ecomm_app_task_def" {
 
     container_definitions = jsonencode([
         {
+            name = "log_router"
+            image = "amazon/aws-for-fluent-bit:2.32.0"
+            essential = true
+
+            firelensConfiguration = {
+                type = "fluentbit"
+            }
+        },
+
+
+
+        {
             name = "ecomm-app"
             image = var.app_image
             essential = true
@@ -24,11 +36,12 @@ resource "aws_ecs_task_definition" "ecomm_app_task_def" {
             ]
 
             logConfiguration = {
-                logDriver = "awslogs"
+                logDriver = "awsfirelens"
                 options = {
-                    awslogs-group = var.log_group_name
-                    awslogs-region = var.region_aws
-                    awslogs-stream-prefix = "ecs"
+                    Name = "cloudwatch"
+                    logs-group-name = var.log_group_name
+                    region = var.region_aws
+                    log-stream-prefix = "ecs"
                 }
             }
 
@@ -84,7 +97,7 @@ resource "aws_ecs_service" "ecomm_app_service" {
     name = "${var.env_name}-service"
     task_definition = aws_ecs_task_definition.ecomm_app_task_def.arn
     cluster = aws_ecs_cluster.app_cluster.id
-    desired_count = 1
+    desired_count = var.desired_count
     launch_type = "FARGATE"
 
     network_configuration {
@@ -97,6 +110,16 @@ resource "aws_ecs_service" "ecomm_app_service" {
         target_group_arn = var.tg_arn
         container_name = "app"
         container_port = 6000
+    }
+
+    lifecycle {
+        ignore_changes = [desired_count]
+    }
+
+    tags = {
+        AutoShutdown = tostring(var.auto_shutdown)
+        Environment = var.env_name
+        ManagedBy = "terraform"
     }
 
     deployment_minimum_healthy_percent = 45

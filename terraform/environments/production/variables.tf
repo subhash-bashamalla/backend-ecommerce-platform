@@ -28,3 +28,7 @@ variable "instance_type" {
     type = string
 }
 
+variable "auto_shutdown" {
+    type = bool
+}
+

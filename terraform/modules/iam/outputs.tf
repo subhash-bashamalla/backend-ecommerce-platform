@@ -13,3 +13,8 @@ output "ecs_execution_role_arn" {
 output "grafana_instance_profile_name" {
     value = aws_iam_instance_profile.grafana_profile.name
 }
+
+output "lambda_role_arn" {
+    value = aws_iam_role.lambda_role.arn
+}
+

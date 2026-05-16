@@ -47,6 +47,7 @@ module "ecs" {
     bucket_name = module.s3.bucket_name
     db_endpoint = module.db.db_endpoint
     redis_endpoint = module.redis.redis_endpoint
+    auto_shutdown = var.auto_shutdown
     
 }
 
@@ -70,7 +71,6 @@ module "iam" {
     source = "../../modules/iam"
     env_name = var.env_name
     bucket_name = module.s3.bucket_name
-
 }
 
 
@@ -140,6 +140,21 @@ module "ansible_vars" {
     cluster_name = module.ecs.ecs_cluster_name
     service_name = module.ecs.ecs_service_name
     output_path = "${path.module}/ansible/tf_vars.yml"
+}
+
+
+module "lambda" {
+    source = "../../modules/lambda"
+    lambda_function_name = "${var.env_name}-scheduler"
+    lambda_role_arn = module.iam.lambda_role_arn
+    shutdown_rule_arn = module.eventbridge.shutdown_rule_arn
+    start_rule_arn = module.eventbridge.start_rule_arn
+}
+
+
+module "eventbridge" {
+    source = "../../modules/eventbridge"
+    lambda_arn = module.lambda.lambda_arn
 }
 
 

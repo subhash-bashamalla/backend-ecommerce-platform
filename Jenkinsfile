@@ -43,7 +43,7 @@ pipeline {
         stage("Build Image") {
             steps {
                 script {
-                    script {
+                    
                     env.AWS_ACCOUNT_ID = sh(
                         script: "aws sts get-caller-identity --query Account --output text",
                         returnStdout: true
@@ -53,7 +53,7 @@ pipeline {
                     env.FULL_IMAGE = "${env.IMAGE_NAME}:${env.IMAGE_TAG}"
 
                     docker build -t ${FULL_IMAGE} app/
-                    }     
+                        
                 }    
             }
         }
@@ -392,7 +392,7 @@ pipeline {
                 if (env.DEPLOYED == "true") {
                     echo "Deployment Failed. Rolling back to previous version...."
 
-                    sh """
+                    sh '''
                     LATEST_VERSION=$(aws s3 cp s3://2026-ecomm-back-app/$DEPLOYMENT_ENVIRONMENT/latest-version.txt - | tr -d '\\n')
                     FULL_IMAGE=${IMAGE_NAME}:${LATEST_VERSION}
 
@@ -411,7 +411,17 @@ pipeline {
                         --task-definition \$TASK_DEFINITION_ARN \
                         --query "taskDefinition" \
                         --output json \
-                    | jq --arg IMAGE "\$FULL_IMAGE" '.containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn,.status,.registeredBy,.registeredAt,.revision,.compatibilities,.requiresAttributes)' \
+                    | jq --arg IMAGE "$FULL_IMAGE" "
+                    .containerDefinitions[0].image = \$IMAGE | 
+                    del(
+                        .taskDefinitionArn,
+                        .status,
+                        .registeredBy,
+                        .registeredAt,
+                        .revision,
+                        .compatibilities,
+                        .requiresAttributes
+                        )" \
                     | aws ecs register-task-definition \
                         --cli-input-json file://-
 
@@ -419,19 +429,21 @@ pipeline {
                     aws ecs update-service \
                         --cluster $CLUSTER_NAME \
                         --service $SERVICE_NAME \
-                        -- region ${AWS_REGION} \
+                        --region ${AWS_REGION} \
                         --task-definition ${DEPLOYMENT_ENVIRONMENT}-ecomm-app-task
 
                     aws ecs wait services-stable \
                         --cluster $CLUSTER_NAME \
                         --services $SERVICE_NAME
 
-                        """
+                    '''
                 }
             
             }
         }
     }
+
+
 
        
 }

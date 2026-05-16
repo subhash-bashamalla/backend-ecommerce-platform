@@ -58,3 +58,12 @@ variable "db_endpoint" {
 variable "redis_endpoint" {
     type = string
 }
+
+variable "desired_count" {
+    default = 1
+    type = number
+}
+
+variable "auto_shutdown" {
+    type = bool
+}
