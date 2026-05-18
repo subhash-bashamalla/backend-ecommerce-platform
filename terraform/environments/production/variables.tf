@@ -32,3 +32,7 @@ variable "auto_shutdown" {
     type = bool
 }
 
+variable "email_alert" {
+    type = string
+}
+

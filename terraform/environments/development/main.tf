@@ -105,6 +105,7 @@ module "cloudwatch" {
     region_aws = var.region_aws
     db_instance_id = null
     redis_cluster_id = null
+    sns_topic_arn = module.sns.sns_topic_arn
 
     log_retention_days = 14
     cpu_threshold = 80
@@ -157,6 +158,13 @@ module "lambda" {
 module "eventbridge" {
     source = "../../modules/eventbridge"
     lambda_arn = module.lambda.lambda_arn
+}
+
+
+module "sns" {
+    source = "../../modules/sns"
+    env_name = var.env_name
+    email_alert = var.email_alert
 }
 
 

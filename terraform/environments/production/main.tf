@@ -102,6 +102,7 @@ module "cloudwatch" {
     service_name = "ecpmm-back-app"
     cluster_name = "dev-cluster"
     alb_arn_suffix = module.lb.alb_arn_suffix
+    sns_topic_arn = module.sns.sns_topic_arn
     region_aws = var.region_aws
     db_instance_id = null
     redis_cluster_id = null
@@ -157,4 +158,11 @@ module "lambda" {
 module "eventbridge" {
     source = "../../modules/eventbridge"
     lambda_arn = module.lambda.lambda_arn
+}
+
+
+module "sns" {
+    source = "../../modules/sns"
+    env_name = var.env_name
+    email_alert = var.email_alert
 }

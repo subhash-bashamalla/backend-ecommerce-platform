@@ -42,3 +42,7 @@ variable "redis_cluster_id" {
     default = null
     type = string
 }
+
+variable "sns_topic_arn" {
+    type = string
+}
