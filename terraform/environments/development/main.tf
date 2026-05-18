@@ -137,6 +137,8 @@ module "monitoring" {
 module "ansible_vars" {
     source = "../../modules/ansible_vars"
     db_instance_id = module.db.db_instance_id
+    redis_cluster_id = module.redis.redis_cluster_id
+    alb_arn_suffix = module.lb.alb_arn_suffix
     cluster_name = module.ecs.ecs_cluster_name
     service_name = module.ecs.ecs_service_name
     output_path = "${path.module}/ansible/tf_vars.yml"

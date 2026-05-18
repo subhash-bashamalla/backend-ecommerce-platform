@@ -139,6 +139,8 @@ module "ansible_vars" {
     db_instance_id = module.db.db_instance_id
     cluster_name = module.ecs.ecs_cluster_name
     service_name = module.ecs.ecs_service_name
+    redis_cluster_id = module.redis.redis_cluster_id
+    alb_arn_suffix = module.lb.alb_arn_suffix
     output_path = "${path.module}/ansible/tf_vars.yml"
 }
 

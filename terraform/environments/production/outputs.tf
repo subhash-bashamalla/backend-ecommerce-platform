@@ -16,3 +16,7 @@ output "alb_arn_suffix" {
 output "db_instance_id" {
     value = module.db.db_instance_id
 }
+
+output "redis_cluster_id" {
+    value = module.redis.redis_cluster_id
+}

@@ -1,0 +1,24 @@
+- name: Create Cloudwatch Exporter Directory
+  file:
+    path: /opt/cloudwatch_exporter
+    state: directory
+
+
+- name: Copy Cloudwatch Exporter config
+  copy:
+    src: config.yml
+    dest: /opt/cloudwatch_exporter/config.yml
+
+
+- name: Run Cloudwatch Exporter Container
+  docker_container:
+    name: cloudwatch-exporter
+    image: prom/cloudwatch-exporter
+    restart_policy: always
+    state: started
+
+    ports:
+      - "9106:9106"
+
+    volumes:
+      - /opt/cloudwatch_exporter/config.yml:/config/config.yml

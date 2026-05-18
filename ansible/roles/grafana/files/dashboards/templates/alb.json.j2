@@ -1,5 +1,10 @@
 {
   "title": "ALB Metrics",
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+
+
   "panels": [
     {
       "type": "timeseries",
@@ -17,8 +22,19 @@
             "LoadBalancer": "{{ alb_arn_suffix }}"
           }
         }
-      ]
+      ],
+
+
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      }
     },
+
+
+
     {
       "type": "timeseries",
       "title": "Target Response Time",
@@ -35,8 +51,20 @@
             "LoadBalancer": "{{ alb_arn_suffix }}"
           }
         }
-      ]
+      ],
+
+
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      }
     },
+
+
+
+
     {
       "type": "timeseries",
       "title": "5XX Errors",
@@ -53,7 +81,47 @@
             "LoadBalancer": "{{ alb_arn_suffix }}"
           }
         }
-      ]
+      ],
+
+
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      }
+    },
+
+
+
+    {
+      "type": "timeseries",
+      "title": "Healthy Host Count",
+      "datasource": {
+        "type": "cloudwatch"
+      },
+      "targets": [
+        {
+          "namespace": "AWS/ApplicationELB",
+          "metricName": "HealthyHostCount",
+          "statistics": ["Average"],
+          "region": "{{ aws_region }}",
+          "dimensions": {
+            "LoadBalancer": "{{ alb_arn_suffix }}"
+          }
+        }
+      ],
+
+
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      }
     }
+
+
+
   ]
 }

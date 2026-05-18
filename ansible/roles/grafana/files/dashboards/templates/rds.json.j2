@@ -1,5 +1,10 @@
 {
   "title": "RDS Metrics",
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+
+
   "panels": [
     {
       "type": "timeseries",
@@ -17,8 +22,20 @@
             "DBInstanceIdentifier": "{{ db_instance_id }}"
           }
         }
-      ]
+      ],
+
+
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      }
+
     },
+
+
+
     {
       "type": "timeseries",
       "title": "DB Connections",
@@ -35,7 +52,71 @@
             "DBInstanceIdentifier": "{{ db_instance_id }}"
           }
         }
-      ]
+      ],
+
+
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      }
+    },
+
+
+    {
+      "type": "timeseries",
+      "title": "Free Storage Space",
+      "datasource": {
+        "type": "cloudwatch"
+      },
+      "targets": [
+        {
+          "namespace": "AWS/RDS",
+          "metricName": "FreeStorageSpace",
+          "statistics": ["Average"],
+          "region": "{{ aws_region }}",
+          "dimensions": {
+            "DBInstanceIdentifier": "{{ db_instance_id }}"
+          }
+        }
+      ],
+
+
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      }
+    },
+
+
+    {
+      "type": "timeseries",
+      "title": "Read Latency",
+      "datasource": {
+        "type": "cloudwatch"
+      },
+      "targets": [
+        {
+          "namespace": "AWS/RDS",
+          "metricName": "ReadLatency",
+          "statistics": ["Average"],
+          "region": "{{ aws_region }}",
+          "dimensions": {
+            "DBInstanceIdentifier": "{{ db_instance_id }}"
+          }
+        }
+      ],
+
+
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      }
     }
   ]
 }

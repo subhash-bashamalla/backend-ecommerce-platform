@@ -1,5 +1,5 @@
 {
-  "title": "ECS Service Overview",
+  "title": "SLI/SLO Overview",
   "timezone": "browser",
   "schemaVersion": 38,
   "version": 1,
@@ -7,9 +7,9 @@
   "panels": [
 
     {
-      "type": "timeseries",
+      "type": "stat",
 
-      "title": "ECS CPU Utilization",
+      "title": "Availability SLI (%)",
 
       "datasource": {
         "type": "cloudwatch"
@@ -17,22 +17,21 @@
 
       "targets": [
         {
-          "namespace": "AWS/ECS",
-          "metricName": "CPUUtilization",
+          "namespace": "AWS/ApplicationELB",
+          "metricName": "HealthyHostCount",
           "statistics": ["Average"],
 
           "region": "{{ region_aws }}",
 
           "dimensions": {
-            "ClusterName": "{{ cluster_name }}",
-            "ServiceName": "{{ service_name }}"
+            "LoadBalancer": "{{ alb_arn_suffix }}"
           }
         }
       ],
 
       "gridPos": {
-        "h": 8,
-        "w": 12,
+        "h": 6,
+        "w": 6,
         "x": 0,
         "y": 0
       }
@@ -43,7 +42,7 @@
     {
       "type": "timeseries",
 
-      "title": "ECS Memory Utilization",
+      "title": "HTTP 5XX Error Rate Count",
 
       "datasource": {
         "type": "cloudwatch"
@@ -51,15 +50,14 @@
 
       "targets": [
         {
-          "namespace": "AWS/ECS",
-          "metricName": "MemoryUtilization",
-          "statistics": ["Average"],
+          "namespace": "AWS/ApplicationELB",
+          "metricName": "HTTPCode_Target_5XX_Count",
+          "statistics": ["Sum"],
 
           "region": "{{ region_aws }}",
 
           "dimensions": {
-            "ClusterName": "{{ cluster_name }}",
-            "ServiceName": "{{ service_name }}"
+            "LoadBalancer": "{{ alb_arn_suffix }}"
           }
         }
       ],
@@ -67,7 +65,7 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 12,
+        "x": 6,
         "y": 0
       }
     },
@@ -77,7 +75,39 @@
     {
       "type": "timeseries",
 
-      "title": "Running Task Count",
+      "title": "Target Response Time",
+
+      "datasource": {
+        "type": "cloudwatch"
+      },
+
+      "targets": [
+        {
+          "namespace": "AWS/ApplicationELB",
+          "metricName": "TargetResponseTime",
+          "statistics": ["Average"],
+
+          "region": "{{ region_aws }}",
+
+          "dimensions": {
+            "LoadBalancer": "{{ alb_arn_suffix }}"
+          }
+        }
+      ],
+
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      }
+    },
+
+
+    {
+      "type": "stat",
+
+      "title": "Running ECS Tasks",
 
       "datasource": {
         "type": "cloudwatch"
@@ -99,42 +129,8 @@
       ],
 
       "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 8
-      }
-    },
-
-
-
-    {
-      "type": "timeseries",
-
-      "title": "Desired Task Count",
-
-      "datasource": {
-        "type": "cloudwatch"
-      },
-
-      "targets": [
-        {
-          "namespace": "AWS/ECS",
-          "metricName": "DesiredTaskCount",
-          "statistics": ["Average"],
-
-          "region": "{{ region_aws }}",
-
-          "dimensions": {
-            "ClusterName": "{{ cluster_name }}",
-            "ServiceName": "{{ service_name }}"
-          }
-        }
-      ],
-
-      "gridPos": {
-        "h": 8,
-        "w": 12,
+        "h": 6,
+        "w": 6,
         "x": 12,
         "y": 8
       }
@@ -142,7 +138,7 @@
 
 
 
-    {
+     {
       "type": "timeseries",
 
       "title": "ALB Request Count",
@@ -168,17 +164,17 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 0,
+        "x": 12,
         "y": 16
       }
     },
 
 
 
-    {
-      "type": "timeseries",
+     {
+      "type": "gauge",
 
-      "title": "ALB 5XX Errors",
+      "title": "Error Budget Consumption",
 
       "datasource": {
         "type": "cloudwatch"
@@ -198,79 +194,23 @@
         }
       ],
 
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 16
-      }
-    },
 
-
-
-    {
-      "type": "timeseries",
-
-      "title": "ALB Target Response Time",
-
-      "datasource": {
-        "type": "cloudwatch"
-      },
-
-      "targets": [
-        {
-          "namespace": "AWS/ApplicationELB",
-          "metricName": "TargetResponseTime",
-          "statistics": ["Average"],
-
-          "region": "{{ region_aws }}",
-
-          "dimensions": {
-            "LoadBalancer": "{{ alb_arn_suffix }}"
-          }
+      "fieldConfig": {
+        "defaults": {
+            "min": 0,
+            "max": 100
         }
-      ],
+       },
+
+
+
 
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 24
-      }
-    },
-
-
-
-    {
-      "type": "timeseries",
-
-      "title": "Healthy Target Count",
-
-      "datasource": {
-        "type": "cloudwatch"
-      },
-
-      "targets": [
-        {
-          "namespace": "AWS/ApplicationELB",
-          "metricName": "HealthyHostCount",
-          "statistics": ["Average"],
-
-          "region": "{{ region_aws }}",
-
-          "dimensions": {
-            "LoadBalancer": "{{ alb_arn_suffix }}"
-          }
-        }
-      ],
-
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 24
+        "y": 16
       }
     }
-
-  ]
-}
+   ]
+   }

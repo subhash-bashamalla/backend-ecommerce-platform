@@ -1,0 +1,33 @@
+region: us-east-1
+
+metrics:
+  - aws_namespace: AWS/ApplicationELB
+    aws_metric_name: RequestCount
+    aws_dimensions:
+      - LoadBalancer
+    aws_statistics:
+      - Sum
+
+
+  - aws_namespace: AWS/ApplicationELB
+    aws_metric_name: HTTPCode_target_5XX_Count
+    aws_dimensions:
+      - LoadBalancer
+    aws_statistics:
+      - Sum
+
+
+  - aws_namespace: AWS/Elasticache
+    aws_metric_name: DatabaseMemoryUsagePercentage
+    aws_dimensions:
+      - CacheClusterId
+    aws_statistics:
+      - Average
+
+
+  - aws_namespace: AWS/RDS
+    aws_metric_name: CPUUtilization
+    aws_dimensions:
+      - DBInstanceIdentifier
+    aws_statistics:
+      - Average

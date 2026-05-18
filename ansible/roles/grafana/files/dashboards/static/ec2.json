@@ -1,14 +1,90 @@
 {
-    "title": "EC2 Metrics",
-    "panels": [
+  "title": "EC2 Metrics",
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+
+  "panels": [
+
+    {
+      "type": "timeseries",
+
+      "title": "CPU Usage",
+
+      "targets": [
         {
-            "type": "graph",
-            "title": "CPU Usage",
-            "targets": [
-                {
-                    "expr": "100 - (average by(instance)(rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100"
-                }
-            ]
+          "expr": "100 - (avg by(instance)(rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+          "refId": "A"
         }
-    ]
+      ],
+
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      }
+    },
+
+    {
+      "type": "timeseries",
+
+      "title": "Memory Usage",
+
+      "targets": [
+        {
+          "expr": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100",
+          "refId": "A"
+        }
+      ],
+
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      }
+    },
+
+    {
+      "type": "timeseries",
+
+      "title": "Disk Usage",
+
+      "targets": [
+        {
+          "expr": "(1 - (node_filesystem_avail_bytes{mountpoint=\"/\"} / node_filesystem_size_bytes{mountpoint=\"/\"})) * 100",
+          "refId": "A"
+        }
+      ],
+
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      }
+    },
+
+    {
+      "type": "timeseries",
+
+      "title": "Network Receive Traffic",
+
+      "targets": [
+        {
+          "expr": "rate(node_network_receive_bytes_total[5m])",
+          "refId": "A"
+        }
+      ],
+
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      }
+    }
+
+  ]
 }

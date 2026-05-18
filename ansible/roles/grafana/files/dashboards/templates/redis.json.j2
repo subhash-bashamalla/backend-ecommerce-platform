@@ -1,0 +1,182 @@
+{
+  "title": "Redis Metrics",
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+
+
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Redis CPU Utilization",
+      "datasource": {
+        "type": "cloudwatch"
+      },
+      "targets": [
+        {
+          "namespace": "AWS/Redis",
+          "metricName": "CPUUtilization",
+          "statistics": ["Average"],
+          "region": "{{ aws_region }}",
+          "dimensions": {
+            "DBInstanceIdentifier": "{{ redis_cluster_id }}"
+          }
+        }
+      ],
+
+
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      }
+
+    },
+
+
+    {
+      "type": "timeseries",
+      "title": "Redis Memory Utilization",
+      "datasource": {
+        "type": "cloudwatch"
+      },
+      "targets": [
+        {
+          "namespace": "AWS/Redis",
+          "metricName": "RedisMemoryUtilization",
+          "statistics": ["Average"],
+          "region": "{{ aws_region }}",
+          "dimensions": {
+            "DBInstanceIdentifier": "{{ redis_cluster_id }}"
+          }
+        }
+      ],
+
+
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      }
+
+    },
+
+
+    {
+      "type": "timeseries",
+      "title": "Current Connections",
+      "datasource": {
+        "type": "cloudwatch"
+      },
+      "targets": [
+        {
+          "namespace": "AWS/Redis",
+          "metricName": "CurrentConnections",
+          "statistics": ["Average"],
+          "region": "{{ aws_region }}",
+          "dimensions": {
+            "DBInstanceIdentifier": "{{ redis_cluster_id }}"
+          }
+        }
+      ],
+
+
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      }
+
+    },
+
+
+    {
+      "type": "timeseries",
+      "title": "Evictions",
+      "datasource": {
+        "type": "cloudwatch"
+      },
+      "targets": [
+        {
+          "namespace": "AWS/Redis",
+          "metricName": "Evictions",
+          "statistics": ["Sum"],
+          "region": "{{ aws_region }}",
+          "dimensions": {
+            "DBInstanceIdentifier": "{{ redis_cluster_id }}"
+          }
+        }
+      ],
+
+
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      }
+
+    },
+
+
+    {
+      "type": "timeseries",
+      "title": "Cache Hits",
+      "datasource": {
+        "type": "cloudwatch"
+      },
+      "targets": [
+        {
+          "namespace": "AWS/Redis",
+          "metricName": "CacheHits",
+          "statistics": ["Sum"],
+          "region": "{{ aws_region }}",
+          "dimensions": {
+            "DBInstanceIdentifier": "{{ redis_cluster_id }}"
+          }
+        }
+      ],
+
+
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      }
+
+    },
+
+
+    {
+      "type": "timeseries",
+      "title": "Cache Misses",
+      "datasource": {
+        "type": "cloudwatch"
+      },
+      "targets": [
+        {
+          "namespace": "AWS/Redis",
+          "metricName": "CacheMisses",
+          "statistics": ["Sum"],
+          "region": "{{ aws_region }}",
+          "dimensions": {
+            "DBInstanceIdentifier": "{{ redis_cluster_id }}"
+          }
+        }
+      ],
+
+
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      }
+
+    }
+    ]
+}

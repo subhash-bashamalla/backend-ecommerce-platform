@@ -13,3 +13,11 @@ variable "cluster_name" {
 variable "db_instance_id" {
     type = string
 }
+
+variable "alb_arn_suffix" {
+    type = string
+}
+
+variable "redis_cluster_id" {
+    type = string
+}

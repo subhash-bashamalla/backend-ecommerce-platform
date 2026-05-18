@@ -6,6 +6,7 @@
     - prometheus
     - grafana
     - node_exporter
+    - cloudwatch_exporter
 
 
   vars_files:
