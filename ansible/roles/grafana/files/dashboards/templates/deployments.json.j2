@@ -1,0 +1,128 @@
+{
+  "title": "Deployment Observability Dash",
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+
+  "panels": [
+
+    {
+      "type": "timeseries",
+
+      "title": "Successful Deployments",
+
+      "datasource": {
+        "type": "cloudwatch"
+      },
+
+      "targets": [
+        {
+          "namespace": "EcommerceApp/Deployment",
+          "metricName": "SuccessfulDeployment",
+          "statistics": ["Sum"],
+
+          "region": "{{ region_aws }}",
+
+        }
+      ],
+
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      }
+    },
+
+
+
+    {
+      "type": "timeseries",
+
+      "title": "Deployment Failures",
+
+      "datasource": {
+        "type": "cloudwatch"
+      },
+
+      "targets": [
+        {
+          "namespace": "EcommerceApp/Deployment",
+          "metricName": "FailedDeployment",
+          "statistics": ["Sum"],
+
+          "region": "{{ region_aws }}",
+
+        }
+      ],
+
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      }
+    },
+
+
+
+    {
+      "type": "timeseries",
+
+      "title": "Rollback Triggered",
+
+      "datasource": {
+        "type": "cloudwatch"
+      },
+
+      "targets": [
+        {
+          "namespace": "EcommerceApp/Deployment",
+          "metricName": "RollbackTriggered",
+          "statistics": ["Sum"],
+
+          "region": "{{ region_aws }}",
+
+        }
+      ],
+
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      }
+    },
+
+
+
+    {
+      "type": "timeseries",
+
+      "title": "Rollback Failures",
+
+      "datasource": {
+        "type": "cloudwatch"
+      },
+
+      "targets": [
+        {
+          "namespace": "EcommerceApp/Deployment",
+          "metricName": "RollbackFailed",
+          "statistics": ["Sum"],
+
+          "region": "{{ region_aws }}",
+
+        }
+      ],
+
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      }
+    }
+
+    ]
+}

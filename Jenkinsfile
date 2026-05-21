@@ -387,56 +387,109 @@ pipeline {
 
 
     post {
+
+        success {
+            script {
+                if (env.DEPLOYED = "false") {
+                    echo "Deployment Succeeded. Sending Deployment metrics to Cloudwatch..."
+                    sh """
+                    aws cloudwatch put-metric-data \
+                      --namespace "EcommerceApp/Deployment" \
+                      --metric-name "SuccessfulDeployment" \
+                      --region ${AWS_REGION} \
+                      --value 1
+                      """
+                }
+
+            }
+        }
+
+
+
         failure {
             script {
                 if (env.DEPLOYED == "true") {
-                    echo "Deployment Failed. Rolling back to previous version...."
-
-                    sh '''
-                    LATEST_VERSION=$(aws s3 cp s3://2026-ecomm-back-app/$DEPLOYMENT_ENVIRONMENT/latest-version.txt - | tr -d '\\n')
-                    FULL_IMAGE=${IMAGE_NAME}:${LATEST_VERSION}
-
-                    echo "Rolling back to $FULL_IMAGE"
-
-                    CLUSTER_NAME=${DEPLOYMENT_ENVIRONMENT}-cluster
-                    SERVICE_NAME=${DEPLOYMENT_ENVIRONMENT}-service
-
-                    TASK_DEFINITION_ARN=$(aws ecs describe-services \
-                        --cluster $CLUSTER_NAME \
-                        --services $SERVICE_NAME \
-                        --query "services[0].taskDefinition" \
-                        --output text)
-
-                    aws ecs describe-task-definition \
-                        --task-definition \$TASK_DEFINITION_ARN \
-                        --query "taskDefinition" \
-                        --output json \
-                    | jq --arg IMAGE "$FULL_IMAGE" "
-                    .containerDefinitions[0].image = \$IMAGE | 
-                    del(
-                        .taskDefinitionArn,
-                        .status,
-                        .registeredBy,
-                        .registeredAt,
-                        .revision,
-                        .compatibilities,
-                        .requiresAttributes
-                        )" \
-                    | aws ecs register-task-definition \
-                        --cli-input-json file://-
 
 
-                    aws ecs update-service \
-                        --cluster $CLUSTER_NAME \
-                        --service $SERVICE_NAME \
+                    sh """
+                      aws cloudwatch put-metric-data \
+                        --namespace "EcommerceApp/Deployment" \
+                        --metric-name "FailedDeployment" \
                         --region ${AWS_REGION} \
-                        --task-definition ${DEPLOYMENT_ENVIRONMENT}-ecomm-app-task
+                        --value 1
+                    """
 
-                    aws ecs wait services-stable \
-                        --cluster $CLUSTER_NAME \
-                        --services $SERVICE_NAME
 
-                    '''
+
+                    try {
+                        echo "Deployment Failed. Rolling back to previous version...."
+
+                        sh '''
+                        LATEST_VERSION=$(aws s3 cp s3://2026-ecomm-back-app/$DEPLOYMENT_ENVIRONMENT/latest-version.txt - | tr -d '\\n')
+                        FULL_IMAGE=${IMAGE_NAME}:${LATEST_VERSION}
+
+                        echo "Rolling back to $FULL_IMAGE"
+
+                        CLUSTER_NAME=${DEPLOYMENT_ENVIRONMENT}-cluster
+                        SERVICE_NAME=${DEPLOYMENT_ENVIRONMENT}-service
+
+                        TASK_DEFINITION_ARN=$(aws ecs describe-services \
+                            --cluster $CLUSTER_NAME \
+                            --services $SERVICE_NAME \
+                            --query "services[0].taskDefinition" \
+                            --output text)
+
+                        aws ecs describe-task-definition \
+                            --task-definition \$TASK_DEFINITION_ARN \
+                            --query "taskDefinition" \
+                            --output json \
+                        | jq --arg IMAGE "$FULL_IMAGE" "
+                        .containerDefinitions[0].image = \$IMAGE | 
+                        del(
+                            .taskDefinitionArn,
+                            .status,
+                            .registeredBy,
+                            .registeredAt,
+                            .revision,
+                            .compatibilities,
+                            .requiresAttributes
+                            )" \
+                        | aws ecs register-task-definition \
+                            --cli-input-json file://-
+
+
+                        aws ecs update-service \
+                            --cluster $CLUSTER_NAME \
+                            --service $SERVICE_NAME \
+                            --region ${AWS_REGION} \
+                            --task-definition ${DEPLOYMENT_ENVIRONMENT}-ecomm-app-task
+
+                        aws ecs wait services-stable \
+                            --cluster $CLUSTER_NAME \
+                            --services $SERVICE_NAME
+
+                        '''
+
+
+                        sh """
+                            aws cloudwatch put-metric-data \
+                                --namespace "EcommerceApp/Deployment" \
+                                --metric-name "RollbackTriggered" \
+                                --region ${AWS_REGION} \
+                                --value 1
+                        """
+
+                    
+                    } catch (Exception e) {
+                        echo "Rollback Failed."
+                        sh """
+                          aws cloudwatch put-metric-data \
+                            --namespace "EcommerceApp/Deployment" \
+                            --metric-name "RollbackFailed" \
+                            --region ${AWS_REGION} \
+                            --value 1
+                            """
+                    }
                 }
             
             }
