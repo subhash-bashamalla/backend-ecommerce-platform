@@ -39,6 +39,43 @@ pipeline {
             }
         }
 
+
+
+        stage("Prepare Reports Folder") {
+            steps {
+                sh '''
+                    mkdir -p reports
+                    '''
+            }
+        }
+
+
+        stage("Checkov Scan") {
+            steps {
+
+                sh """
+                checkov \
+                -d terraform/ \
+                -o junitxml \
+                > reports/checkov_report.xml
+                """
+
+            }
+        }
+
+
+        stage("tfsec Scan") {
+            steps {
+
+                sh """
+                tfsec terraform/ \
+                  --format junit \
+                  --out reports/tfsec_report.xml
+                  """
+
+            }
+        }
+
         
         stage("Build Image") {
             steps {
@@ -74,12 +111,29 @@ pipeline {
         
         stage("Report High Vulnerabilities") {
             steps {
-                sh '''
+                sh """
+
                     trivvy image \
                     --severity HIGH,MEDIUM \
                     --exit-code 0 \
-                    ${FULL_IMAGE}
-                    '''
+                    ${FULL_IMAGE} \
+                    > reports/trivy_report.txt
+                    """
+
+            }
+        }
+
+
+        stage("Generate SBOM") {
+            steps {
+                sh """
+
+                    trivy image \
+                      --format cyclonedx \
+                      --output reports/sbom.json \
+                      ${FULL_IMAGE}
+                      """
+
             }
         }
 
@@ -374,7 +428,7 @@ pipeline {
 
 
         stage("Record Last Deployed Version") {
-            stepd {
+            steps {
                 sh '''
                 echo ${IMAGE_TAG} > latest_version.txt
                 aws s3 cp latest_version.txt s3://2026-ecomm-back-app/$DEPLOYMENT_ENVIRONMENT/latest-version.txt
@@ -387,6 +441,12 @@ pipeline {
 
 
     post {
+
+        always {
+
+            archiveArtifacts artifacts: 'reports/*'
+            
+        }
 
         success {
             script {
@@ -494,10 +554,9 @@ pipeline {
             
             }
         }
+
+
     }
-
-
-
        
 }
 

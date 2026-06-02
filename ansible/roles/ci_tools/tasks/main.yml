@@ -1,0 +1,103 @@
+---
+
+
+- name: Install system Packages
+  dnf:
+    name:
+      - git
+      - unzip
+      - jq
+      - docker
+      - python3
+      - python3-pip
+    state: present
+
+
+- name: Install AWS CLI v2
+  unarchive:
+    src: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+    dest: /tmp
+    remote_src: true
+
+
+
+- name: Install AWS CLI
+  command: /tmp/aws/install
+  args:
+    creates: /usr/local/bin/aws
+
+
+
+- name: Install Checkov
+  pip:
+    name: checkov
+    executable: pip3
+
+
+
+- name: Download tfsec
+  get_url:
+    url: https://github.com/aquasecurity/tfsec/releases/latest/download/tfsec-linux-amd64
+    dest: /usr/local/bin/tfsec
+    mode: '0755'
+
+
+- name: Install Trivy Repository
+  shell: |
+    rpm --import https://aquasecurity.github.io/trivy-repo/rpm/public.key
+
+    cat > /etc/yum.repos.d/trivy.repo << EOF
+    [trivy]
+    name=Trivy repository
+    baseurl=https://aquasecurity.github.io/trivy-repo/rpm/releases/$basearch/
+    enabled=1
+    gpgcheck=1
+    gpgkey=https://aquasecurity.github.io/trivy-repo/rpm/public.key
+    EOF
+
+  args:
+    creates: /etc/yum.repos.d/trivy.repo
+
+
+
+- name: Install Trivy
+  dnf:
+    name: trivy
+    state: present
+
+
+- name: Download Terraform
+  unarchive:
+    src: https://releases.hashicorp.com/terraform/{{ terraform_version }}/terraform_{{ terraform_version }}_linux_amd64.zip
+    dest: /usr/local/bin
+    remote_src: true
+
+
+- name: Start Docker
+  service:
+    name: docker
+    state: started
+    enabled: true
+
+
+
+- name: Verify Terraform
+  command: terraform version
+  changed_when: false
+
+
+- name: Verify Checkov
+  command: checkov --version
+  changed_when: false
+
+
+- name: Verify tfsec
+  command: tfsec --version
+  changed_when: false
+
+
+- name: Verify Trivy
+  command: trivy --version
+  changed_when: false
+
+

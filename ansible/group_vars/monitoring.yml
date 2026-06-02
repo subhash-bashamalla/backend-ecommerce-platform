@@ -4,3 +4,4 @@ db_instance_id:
 redis_cluster_id:
 alb_arn_suffix:
 region_aws: us-east-1
+terraform_version: "1.13.0"
