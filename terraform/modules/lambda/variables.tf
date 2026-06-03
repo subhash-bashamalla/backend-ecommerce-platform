@@ -13,3 +13,11 @@ variable "start_rule_arn" {
 variable "shutdown_rule_arn" {
     type = string
 }
+
+variable "env_name" {
+    type = string
+}
+
+variable "rotation_rule_arn" {
+    type = string
+}

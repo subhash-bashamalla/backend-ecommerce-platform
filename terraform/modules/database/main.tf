@@ -14,6 +14,8 @@ resource "aws_db_instance" "database_instance" {
 
     instance_class = var.env_name == "production" ? "db.t3.medium" : "db.t3.micro"
     engine = "postgres"
+    username = var.db_username
+    password = var.db_password
     allocated_storage = 20
 
     db_subnet_group_name = aws_db_subnet_group.db_subnet_grp.name

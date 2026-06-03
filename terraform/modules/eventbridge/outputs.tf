@@ -5,3 +5,8 @@ output "start_rule_arn" {
 output "shutdown_rule_arn" {
     value = aws_cloudwatch_event_rule.shutdown_rule.arn
 }
+
+
+output "rotation_rule_arn" {
+    value = aws_cloudwatch_event_rule.rotation.arn
+}

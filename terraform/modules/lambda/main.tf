@@ -34,3 +34,28 @@ resource "aws_lambda_permission" "shutdown_allow" {
     principal = "events.amazonaws.com"
     source_arn = var.shutdown_rule_arn
 }
+
+
+resource "aws_lambda_function" "rotation" {
+    function_name = "${var.env_name}-rds-password-rotation"
+
+    filename = data.archive_file.rotation.output_path
+    source_code_hash = data.archive_file.rotation.output_base64sha256
+
+    role = var.lambda_role_arn
+    handler = "rds_password_rotation.lambda_handler"
+    runtime = "python3.12"
+
+    timeout = 60
+}
+
+
+resource "aws_lambda_permission" "rotation_allow" {
+    statement_id = "AllowEventBridgeInvokeRotation"
+    action = "lambda:InvokeFunction"
+
+    function_name = aws_lambda_function.rotation.function_name
+    principal = "events.amazonaws.com"
+    source_arn = var.rotation_rule_arn
+}
+

@@ -71,6 +71,7 @@ module "iam" {
     source = "../../modules/iam"
     env_name = var.env_name
     bucket_name = module.s3.bucket_name
+    secret_arn = module.secrets_manager.secret_arn
 }
 
 
@@ -87,6 +88,8 @@ module "db" {
     env_name = var.env_name
     private_subnet_ids = module.vpc.private_subnet_ids
     db_sg_id = module.sg.sg_db_id
+    db_password = var.db_password
+    db_username = var.db_username
 }
 
 
@@ -152,12 +155,18 @@ module "lambda" {
     lambda_role_arn = module.iam.lambda_role_arn
     shutdown_rule_arn = module.eventbridge.shutdown_rule_arn
     start_rule_arn = module.eventbridge.start_rule_arn
+    env_name = var.env_name
+    rotation_rule_arn = module.eventbridge.rotation_rule_arn
 }
 
 
 module "eventbridge" {
     source = "../../modules/eventbridge"
     lambda_arn = module.lambda.lambda_arn
+    env_name = var.env_name
+    db_identifier = 
+    secret_arn = 
+    rotation_lambda_arn = module.lambda.rotation_lambda_arn
 }
 
 
@@ -165,6 +174,14 @@ module "sns" {
     source = "../../modules/sns"
     env_name = var.env_name
     email_alert = var.email_alert
+}
+
+
+module "secrets_manager" {
+    source = "../../modules/secrets_manager"
+    env_name = var.env_name
+    db_password = var.db_password
+    db_username = var.db_username
 }
 
 

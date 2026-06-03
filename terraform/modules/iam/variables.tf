@@ -5,3 +5,7 @@ variable "env_name" {
 variable "bucket_name" {
     type = string
 }
+
+variable "secret_arn" {
+    type = string
+}
