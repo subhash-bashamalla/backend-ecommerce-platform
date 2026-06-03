@@ -1,0 +1,120 @@
+pipeline {
+
+    agent {
+        label 'jenkins-agent'
+    }
+
+
+
+    stages {
+
+        stage("Checkout") {
+            steps {
+                checkout scm
+            }
+        }
+
+
+        stage("Prepare Reports Folder") {
+            steps {
+                sh '''
+                    mkdir -p reports
+                    '''
+            }
+        }
+
+
+        
+        stage("Run Terraform Format") {
+            steps {
+                sh '''
+                    cd terraform
+                    terraform fmt -check -recursive
+                    '''
+            }
+        }
+
+
+        stage("Run Terraform Init") {
+            steps {
+                sh '''
+                    cd terraform
+                    terraform init
+                    '''
+            }
+        }
+
+
+
+        stage("Run Terraform Validate") {
+            steps {
+                sh '''
+                    cd terraform
+                    terraform validate
+                    '''
+            }
+        }
+
+
+        
+        stage("Checkov Scan") {
+            steps {
+
+                sh """
+                checkov -d terraform/ -o junitxml > $WORKSPACE/reports/checkov_report.xml
+                """
+
+            }
+        }
+
+
+        
+        stage("tfsec Scan") {
+            steps {
+
+                sh """
+                tfsec terraform/ \
+                  --format junit \
+                  --out $WORKSPACE/reports/tfsec_report.xml
+                  """
+
+            }
+        }
+
+
+        stage("Run Terraform Plan") {
+            steps {
+                sh """
+                    cd terraform
+                    terraform plan -out=tfplan > $WORKSPACE/reports/terraform-plan.txt
+                    """
+            }
+        }
+
+
+        stage("Terraform Apply") {
+            steps {
+                input (
+                    message: "Apply Terraform Infrastructure Changes?",
+                    ok: 'Deploy'
+                )
+
+                sh '''
+                    cd terraform
+                    terraform apply -auto-approve tfplan
+                    '''
+            }
+        }
+    }
+
+
+
+
+    post {
+        always {
+
+            archiveArtifacts artifacts: 'reports/*', allowEmptyArchive: true
+
+        }
+    }
+}

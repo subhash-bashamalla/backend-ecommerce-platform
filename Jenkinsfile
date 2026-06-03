@@ -50,32 +50,6 @@ pipeline {
         }
 
 
-        stage("Checkov Scan") {
-            steps {
-
-                sh """
-                checkov \
-                -d terraform/ \
-                -o junitxml \
-                > reports/checkov_report.xml
-                """
-
-            }
-        }
-
-
-        stage("tfsec Scan") {
-            steps {
-
-                sh """
-                tfsec terraform/ \
-                  --format junit \
-                  --out reports/tfsec_report.xml
-                  """
-
-            }
-        }
-
         
         stage("Build Image") {
             steps {
@@ -444,8 +418,8 @@ pipeline {
 
         always {
 
-            archiveArtifacts artifacts: 'reports/*'
-            
+            archiveArtifacts artifacts: 'reports/*', allowEmptyArchive: true
+
         }
 
         success {

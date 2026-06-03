@@ -73,6 +73,7 @@
     remote_src: true
 
 
+
 - name: Start Docker
   service:
     name: docker
@@ -99,5 +100,6 @@
 - name: Verify Trivy
   command: trivy --version
   changed_when: false
+
 
 

@@ -67,3 +67,7 @@ variable "desired_count" {
 variable "auto_shutdown" {
     type = bool
 }
+
+variable "secret_arn" {
+    type = string
+}

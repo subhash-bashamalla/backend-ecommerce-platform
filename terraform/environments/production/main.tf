@@ -155,6 +155,7 @@ module "lambda" {
     lambda_role_arn = module.iam.lambda_role_arn
     shutdown_rule_arn = module.eventbridge.shutdown_rule_arn
     start_rule_arn = module.eventbridge.start_rule_arn
+    env_name = var.env_name
 }
 
 

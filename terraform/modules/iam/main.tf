@@ -33,6 +33,7 @@ resource "aws_iam_role_policy" "ecs_s3_access" {
 }
 
 
+
 resource "aws_iam_role" "ecs_execution_role" {
     name = "${var.env_name}-ecs-exec-role"
 
@@ -47,6 +48,7 @@ resource "aws_iam_role" "ecs_execution_role" {
         }]
     })
 }
+
 
 
 resource "aws_iam_role_policy_attachment" "ecs_exec_policy" {
@@ -185,6 +187,31 @@ resource "aws_iam_role_policy" "pass_rotation" {
                 ]
 
                 Resource = "*"
+            }
+        ]
+    })
+}
+
+
+
+
+resource "aws_iam_role_policy" "ecs_secrets_access" {
+    name = "${var.env_name}-ecs-secrets-access"
+    role = aws_iam_role.ecs_execution_role.id
+
+    policy = jsonencode({
+        Version = "2012-10-17"
+
+        Statement = [
+            {
+                Effect = "Allow"
+                Action = [
+                    "secretsmanager:GetSecretValue"
+                ]
+
+                Resource = [
+                    var.secret.arn
+                ]
             }
         ]
     })

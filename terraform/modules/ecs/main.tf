@@ -59,24 +59,24 @@ resource "aws_ecs_task_definition" "ecomm_app_task_def" {
                     value = "5432"
                 },
                 {
-                    name = "DB_USER"
-                    value = "postgres"
-                },
-                {
-                    name = "DB_PASSWORD"
-                    value = "pw"
-                }
-            ]
-
-
-            environment = [
-                {
                     name = "REDIS_HOST"
                     value = var.redis_endpoint
                 },
                 {
                     name = "REDIS_PORT"
                     value = "6379"
+                }
+            ]
+
+
+            secrets = [
+                {
+                    name = "DB_USER"
+                    valueFrom = "${var.secret_arn}:username::"
+                },
+                {
+                    name = "DB_PASSWORD"
+                    valueFrom = "${var.secret_arn}:password::"
                 }
             ]
 
