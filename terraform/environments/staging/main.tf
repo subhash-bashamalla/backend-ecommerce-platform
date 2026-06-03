@@ -47,6 +47,7 @@ module "ecs" {
     db_endpoint = module.db.db_endpoint
     redis_endpoint = module.redis.redis_endpoint
     auto_shutdown = var.auto_shutdown
+    secret_arn = module.secrets_manager.secret_arn
     
 }
 
@@ -155,12 +156,18 @@ module "lambda" {
     lambda_role_arn = module.iam.lambda_role_arn
     shutdown_rule_arn = module.eventbridge.shutdown_rule_arn
     start_rule_arn = module.eventbridge.start_rule_arn
+    env_name = var.env_name
+    rotation_rule_arn = module.eventbridge.rotation_rule_arn
 }
 
 
 module "eventbridge" {
     source = "../../modules/eventbridge"
     lambda_arn = module.lambda.lambda_arn
+    env_name = var.env_name
+    db_identifier = module.database.db_identifier
+    secret_arn = module.secrets_manager.secret_arn
+    rotation_lambda_arn = module.lambda.rotation_lambda_arn
 }
 
 

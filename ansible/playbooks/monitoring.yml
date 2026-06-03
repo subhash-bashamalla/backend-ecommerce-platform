@@ -1,6 +1,6 @@
 - name: Setup Prometheus & Grafana
   hosts: monitoring-server
-  become: yes
+  become: true
 
   roles:
     - prometheus
