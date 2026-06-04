@@ -4,6 +4,14 @@ pipeline {
         label 'jenkins-agent'
     }
 
+    parameters {
+        choice(
+            name: 'DEPLOYMENT_ENVIRONMENT',
+            choices: ['development', 'staging', 'production'],
+            
+        )
+    }
+
 
 
     stages {
@@ -37,10 +45,11 @@ pipeline {
 
         stage("Run Terraform Init") {
             steps {
-                sh '''
+                sh """
                     cd terraform
-                    terraform init
-                    '''
+                    terraform init \
+                    -backend-config=backend-${params.DEPLOYMENT_ENVIRONMENT}.hcl
+                    """
             }
         }
 
@@ -86,7 +95,10 @@ pipeline {
             steps {
                 sh """
                     cd terraform
-                    terraform plan -out=tfplan > $WORKSPACE/reports/terraform-plan.txt
+                    terraform plan \
+                     -var-file=${WORKSPACE}/terraform/environments/${params.DEPLOYMENT_ENVIRONMENT}/terraform.tfvars \
+                     -out=tfplan > $WORKSPACE/reports/terraform-plan.txt
+
                     """
             }
         }
@@ -99,10 +111,12 @@ pipeline {
                     ok: 'Deploy'
                 )
 
-                sh '''
+                sh """
                     cd terraform
-                    terraform apply -auto-approve tfplan
-                    '''
+                    terraform apply \
+                    -var-file=${WORKSPACE}/terraform/environments/${params.DEPLOYMENT_ENVIRONMENT}/terraform.tfvars \
+                    -auto-approve tfplan
+                    """
             }
         }
     }

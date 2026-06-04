@@ -12,11 +12,6 @@ locals {
 /*
 terraform {
     backend "s3" {
-        bucket = "2026-ecomm-back-app-terraform-state-bucket-${var.env_name}"
-        key = "abc"
-        region = "us-east-1"
-        dynamodb_table = "2026-ecomm-back-app-terraform-state-lock-table"
-        encrypt = true
     }
 }
 
